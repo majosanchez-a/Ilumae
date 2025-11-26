@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ilumae · Velas artesanales que iluminan tu alma</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#F7B7A3">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -388,7 +390,19 @@
   </div>
 
   <script>
-    // --- Carrito: persistente en localStorage ---
+        //-- aquí termina tu contenido --
+
+    //-- Registrar Service Worker (para convertirlo en app) -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker
+            .register('/service-worker.js')
+            .catch(function (err) {
+              console.log('Service Worker error:', err);
+  
+
+// --- Carrito: persistente en localStorage ---
     let cart = [];
 
     function loadCart() {
