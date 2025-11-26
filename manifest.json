@@ -1,0 +1,21 @@
+{
+  "name": "Ilumae Candles & Soaps",
+  "short_name": "Ilumae",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FAF4EF",
+  "theme_color": "#F7B7A3",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
