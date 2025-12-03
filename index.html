@@ -389,21 +389,16 @@
     </div>
   </div>
 
-    //-- Registrar Service Worker (para convertirlo en app) -->
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function () {
-          navigator.serviceWorker
-            .register('/service-worker.js')
-            .catch(function (err) {
-              console.log('Service Worker error:', err);
-  
-
-// --- Carrito: persistente en localStorage ---
+    // --- Carrito: persistente en localStorage ---
     let cart = [];
 
     function loadCart() {
-      try { cart = JSON.parse(localStorage.getItem('ilumae_cart')) || []; } catch(e) { cart = []; }
+      try {
+        cart = JSON.parse(localStorage.getItem('ilumae_cart')) || [];
+      } catch (e) {
+        cart = [];
+      }
       updateBadge();
       renderCart();
     }
@@ -415,29 +410,34 @@
     }
 
     function updateBadge() {
-      const count = cart.reduce((s,i)=>s + (i.qty||0), 0);
+      const count = cart.reduce((s, i) => s + (i.qty || 0), 0);
       const el = document.querySelector('[data-cart-count]');
       if (el) el.textContent = count;
     }
 
     function addToCart(name, price, img) {
-      const existing = cart.find(i=>i.name === name);
-      if (existing) existing.qty++;
-      else cart.push({name, price: Number(price), img: img || '', qty: 1});
+      const existing = cart.find(i => i.name === name);
+      if (existing) {
+        existing.qty++;
+      } else {
+        cart.push({ name, price: Number(price), img: img || '', qty: 1 });
+      }
       saveCart();
       openCart();
     }
 
     function changeQty(name, delta) {
-      const item = cart.find(i=>i.name===name);
+      const item = cart.find(i => i.name === name);
       if (!item) return;
       item.qty += delta;
-      if (item.qty <= 0) cart = cart.filter(i=>i.name !== name);
+      if (item.qty <= 0) {
+        cart = cart.filter(i => i.name !== name);
+      }
       saveCart();
     }
 
     function removeFromCart(name) {
-      cart = cart.filter(i=>i.name !== name);
+      cart = cart.filter(i => i.name !== name);
       saveCart();
     }
 
@@ -445,17 +445,19 @@
       const container = document.getElementById('cartItems');
       const totalEl = document.getElementById('cartTotal');
       if (!container || !totalEl) return;
+
       container.innerHTML = '';
       if (cart.length === 0) {
         container.innerHTML = '<p style="padding:16px;color:var(--graphite-60)">Tu carrito está vacío.</p>';
         totalEl.textContent = '$0';
         return;
       }
+
       cart.forEach(item => {
         const itemEl = document.createElement('div');
         itemEl.className = 'cart-item';
         itemEl.innerHTML = `
-          <img src="${item.img||'https://via.placeholder.com/64'}" alt="${item.name}">
+          <img src="${item.img || 'https://via.placeholder.com/64'}" alt="${item.name}">
           <div class="info">
             <strong>${item.name}</strong>
             <div style="color:var(--graphite-60);font-size:14px;margin-top:6px;">$${item.price} · x${item.qty}</div>
@@ -469,7 +471,8 @@
         `;
         container.appendChild(itemEl);
       });
-      const total = cart.reduce((s,i)=>s + i.price * i.qty, 0);
+
+      const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
       totalEl.textContent = `$${total}`;
     }
 
@@ -477,71 +480,75 @@
       const d = document.getElementById('cartDrawer');
       if (!d) return;
       d.classList.add('open');
-      d.setAttribute('aria-hidden','false');
+      d.setAttribute('aria-hidden', 'false');
     }
 
     function closeCart() {
       const d = document.getElementById('cartDrawer');
       if (!d) return;
       d.classList.remove('open');
-      d.setAttribute('aria-hidden','true');
+      d.setAttribute('aria-hidden', 'true');
     }
 
     function checkout() {
-      const total = cart.reduce((s,i)=>s + i.price * i.qty, 0);
+      const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
       alert(`Total a pagar: $${total}. Implementa tu pasarela de pago para completar la compra.`);
     }
 
-    // Inicializaciones existentes (Year, header scroll, carousel, etc)...
+    // Año en el footer
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Header scrolled
     window.addEventListener('scroll', () => {
       document.getElementById('header').classList.toggle('scrolled', window.scrollY > 50);
     });
-    
+
     // Carousel
     const carousel = document.querySelector('[data-carousel]');
-    const track = carousel.querySelector('[data-track]');
-    const slides = Array.from(track.children);
-    const next = carousel.querySelector('[data-next]');
-    const prev = carousel.querySelector('[data-prev]');
-    const indicators = carousel.querySelector('[data-indicators]');
-    
-    let idx = 0;
-    
-    // Create indicators
-    slides.forEach((_, i) => {
-      const dot = document.createElement('div');
-      dot.className = 'carousel__dot' + (i === 0 ? ' active' : '');
-      dot.onclick = () => { idx = i; update(); };
-      indicators.appendChild(dot);
-    });
-    
-    const dots = Array.from(indicators.children);
-    
-    function update() {
-      track.style.transform = `translateX(-${idx * 100}%)`;
-      dots.forEach((dot, i) => dot.classList.toggle('active', i === idx));
+    if (carousel) {
+      const track = carousel.querySelector('[data-track]');
+      const slides = Array.from(track.children);
+      const next = carousel.querySelector('[data-next]');
+      const prev = carousel.querySelector('[data-prev]');
+      const indicators = carousel.querySelector('[data-indicators]');
+
+      let idx = 0;
+
+      // Create indicators
+      slides.forEach((_, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'carousel__dot' + (i === 0 ? ' active' : '');
+        dot.onclick = () => { idx = i; update(); };
+        indicators.appendChild(dot);
+      });
+
+      const dots = Array.from(indicators.children);
+
+      function update() {
+        track.style.transform = `translateX(-${idx * 100}%)`;
+        dots.forEach((dot, i) => dot.classList.toggle('active', i === idx));
+      }
+
+      next.onclick = () => { idx = (idx + 1) % slides.length; update(); };
+      prev.onclick = () => { idx = (idx - 1 + slides.length) % slides.length; update(); };
+
+      // Auto-advance
+      setInterval(() => { idx = (idx + 1) % slides.length; update(); }, 5000);
+
+      // Touch support
+      let startX = 0;
+      track.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+      track.addEventListener('touchend', e => {
+        const endX = e.changedTouches[0].clientX;
+        if (endX - startX > 50) prev.click();
+        if (startX - endX > 50) next.click();
+      });
     }
-    
-    next.onclick = () => { idx = (idx + 1) % slides.length; update(); };
-    prev.onclick = () => { idx = (idx - 1 + slides.length) % slides.length; update(); };
-    
-    // Auto-advance
-    setInterval(() => { idx = (idx + 1) % slides.length; update(); }, 5000);
-    
-    // Touch support
-    let startX = 0;
-    track.addEventListener('touchstart', e => startX = e.touches[0].clientX);
-    track.addEventListener('touchend', e => {
-      const endX = e.changedTouches[0].clientX;
-      if (endX - startX > 50) prev.click();
-      if (startX - endX > 50) next.click();
-    });
-    
+
     // Active nav
     const sections = document.querySelectorAll('section[id]');
     const navLinks = document.querySelectorAll('nav a');
-    
+
     window.addEventListener('scroll', () => {
       let current = '';
       sections.forEach(section => {
@@ -553,9 +560,20 @@
         if (link.getAttribute('href') === '#' + current) link.classList.add('active');
       });
     });
-    
+
     // Cargar carrito al inicio
     loadCart();
+
+    // Registrar Service Worker (para la app)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker
+          .register('/service-worker.js')
+          .catch(function (err) {
+            console.log('Service Worker error:', err);
+          });
+      });
+    }
   </script>
 </body>
 </html>
