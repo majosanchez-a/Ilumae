@@ -157,6 +157,71 @@
       nav{display:none;}
       .catalog__grid{grid-template-columns:1fr;}
     }
+    <!-- POPUP DESCUENTO -->
+<div class="popup-overlay" id="discountPopup">
+  <div class="popup-card">
+    <button class="popup-close" id="closePopupBtn">&times;</button>
+    <h2>¡Bienvenida a ILUMAE! ✨</h2>
+    <p>
+      Regístrate con tu correo y recibe un 
+      <strong>descuento especial en tu primera compra.</strong>
+    </p>
+
+    <form id="popupRegisterForm">
+      <label for="popupEmail">Correo electrónico</label>
+      <input type="email" id="popupEmail" required placeholder="tucorreo@example.com" />
+
+      <label for="popupPassword">Crea una contraseña</label>
+      <input type="password" id="popupPassword" required placeholder="Mínimo 6 caracteres" />
+
+      <button type="submit">Crear cuenta y obtener descuento</button>
+    </form>
+
+    <p class="popup-note">
+      Ya tienes cuenta? Inicia sesión en el apartado de login de la página.
+    </p>
+  </div>
+</div>
+
+<!-- SECCIÓN DE LOGIN / REGISTRO NORMAL (por si no quieren el popup) -->
+<section id="authSection">
+  <h2>Mi cuenta</h2>
+
+  <div class="auth-forms">
+    <!-- LOGIN -->
+    <form id="loginForm">
+      <h3>Iniciar sesión</h3>
+      <label for="loginEmail">Correo</label>
+      <input type="email" id="loginEmail" required />
+
+      <label for="loginPassword">Contraseña</label>
+      <input type="password" id="loginPassword" required />
+
+      <button type="submit">Entrar</button>
+    </form>
+
+    <!-- REGISTRO -->
+    <form id="registerForm">
+      <h3>Crear cuenta</h3>
+      <label for="registerEmail">Correo</label>
+      <input type="email" id="registerEmail" required />
+
+      <label for="registerPassword">Contraseña</label>
+      <input type="password" id="registerPassword" required />
+
+      <button type="submit">Registrarme</button>
+    </form>
+  </div>
+
+  <div class="auth-status">
+    <p id="authMessage"></p>
+    <p id="userInfo" style="display:none;">
+      Sesión iniciada como: <span id="userEmailSpan"></span>
+    </p>
+    <button id="logoutBtn" style="display:none;">Cerrar sesión</button>
+  </div>
+</section>
+
   </style>
 </head>
 <body>
