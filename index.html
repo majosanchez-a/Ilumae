@@ -25,25 +25,25 @@
     
     /* Header mejorado */
     header{
-  position: sticky;
-  top: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.95),
-    rgba(250, 244, 239, 0.85),
-    rgba(230, 206, 196, 0.75)
-  );
-  backdrop-filter: blur(12px);
-  z-index: 100;
-  border-bottom: 1px solid rgba(0,0,0,.08);
-  transition: all .3s;
-}
+      position: sticky;
+      top: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.95),
+        rgba(250, 244, 239, 0.85),
+        rgba(230, 206, 196, 0.75)
+      );
+      backdrop-filter: blur(12px);
+      z-index: 100;
+      border-bottom: 1px solid rgba(0,0,0,.08);
+      transition: all .3s;
+    }
 
     header.scrolled{box-shadow:var(--shadow-sm);}
     .nav__inner{display:flex;justify-content:space-between;align-items:center;height:80px;}
     .brand{display:flex;align-items:center;gap:0;transition:transform .3s;}
     .brand:hover{transform:scale(1.05);}
-    .brand__logo{height:150px;width:auto;object-fit:contain;} /* aumentado */
+    .brand__logo{height:150px;width:auto;object-fit:contain;}
     nav{display:flex;gap:8px;}
     nav a{padding:10px 18px;border-radius:999px;font-weight:500;transition:all .3s;position:relative;}
     nav a:hover{background:var(--beige);transform:translateY(-2px);}
@@ -157,71 +157,151 @@
       nav{display:none;}
       .catalog__grid{grid-template-columns:1fr;}
     }
-    <!-- POPUP DESCUENTO -->
-<div class="popup-overlay" id="discountPopup">
-  <div class="popup-card">
-    <button class="popup-close" id="closePopupBtn">&times;</button>
-    <h2>¡Bienvenida a ILUMAE! ✨</h2>
-    <p>
-      Regístrate con tu correo y recibe un 
-      <strong>descuento especial en tu primera compra.</strong>
-    </p>
 
-    <form id="popupRegisterForm">
-      <label for="popupEmail">Correo electrónico</label>
-      <input type="email" id="popupEmail" required placeholder="tucorreo@example.com" />
+    /* ==== POPUP DESCUENTO ==== */
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
 
-      <label for="popupPassword">Crea una contraseña</label>
-      <input type="password" id="popupPassword" required placeholder="Mínimo 6 caracteres" />
+    .popup-card {
+      background: #FAF4EF;
+      border-radius: 20px;
+      padding: 24px 28px;
+      max-width: 380px;
+      width: 90%;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.25);
+      font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      position: relative;
+    }
 
-      <button type="submit">Crear cuenta y obtener descuento</button>
-    </form>
+    .popup-card h2 {
+      font-family: "Playfair Display", serif;
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
 
-    <p class="popup-note">
-      Ya tienes cuenta? Inicia sesión en el apartado de login de la página.
-    </p>
-  </div>
-</div>
+    .popup-card p {
+      margin: 6px 0 12px;
+    }
 
-<!-- SECCIÓN DE LOGIN / REGISTRO NORMAL (por si no quieren el popup) -->
-<section id="authSection">
-  <h2>Mi cuenta</h2>
+    .popup-card label {
+      display: block;
+      font-size: 0.85rem;
+      margin-top: 8px;
+      margin-bottom: 4px;
+    }
 
-  <div class="auth-forms">
-    <!-- LOGIN -->
-    <form id="loginForm">
-      <h3>Iniciar sesión</h3>
-      <label for="loginEmail">Correo</label>
-      <input type="email" id="loginEmail" required />
+    .popup-card input {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid #D4A5A5;
+      font-size: 0.9rem;
+    }
 
-      <label for="loginPassword">Contraseña</label>
-      <input type="password" id="loginPassword" required />
+    .popup-card button[type="submit"] {
+      margin-top: 14px;
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      background: #F08E80;
+      color: #fff;
+    }
 
-      <button type="submit">Entrar</button>
-    </form>
+    .popup-card button[type="submit"]:hover {
+      filter: brightness(1.05);
+    }
 
-    <!-- REGISTRO -->
-    <form id="registerForm">
-      <h3>Crear cuenta</h3>
-      <label for="registerEmail">Correo</label>
-      <input type="email" id="registerEmail" required />
+    .popup-close {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      border: none;
+      background: transparent;
+      font-size: 1.3rem;
+      cursor: pointer;
+    }
 
-      <label for="registerPassword">Contraseña</label>
-      <input type="password" id="registerPassword" required />
+    .popup-note {
+      font-size: 0.8rem;
+      color: #555;
+      margin-top: 10px;
+    }
 
-      <button type="submit">Registrarme</button>
-    </form>
-  </div>
+    /* ==== AUTH SECTION (LOGIN / REGISTRO) ==== */
+    #authSection {
+      padding: 80px 0;
+      background: var(--cream);
+    }
 
-  <div class="auth-status">
-    <p id="authMessage"></p>
-    <p id="userInfo" style="display:none;">
-      Sesión iniciada como: <span id="userEmailSpan"></span>
-    </p>
-    <button id="logoutBtn" style="display:none;">Cerrar sesión</button>
-  </div>
-</section>
+    #authSection h2 {
+      text-align:center;
+      font:700 32px var(--font-display);
+      margin-bottom: 8px;
+    }
 
+    .auth-forms {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      max-width: 900px;
+      margin: 20px auto 0;
+    }
+
+    .auth-forms form {
+      flex: 1 1 260px;
+      background: #F2E7DE;
+      padding: 1rem 1.2rem;
+      border-radius: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .auth-forms h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-family: var(--font-display);
+    }
+
+    .auth-forms label {
+      display: block;
+      font-size: 0.85rem;
+      margin-top: 8px;
+    }
+
+    .auth-forms input {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #D4A5A5;
+      margin-top: 4px;
+    }
+
+    .auth-forms button {
+      margin-top: 12px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: #C9A769;
+      color: #fff;
+      font-weight: 600;
+      width: 100%;
+    }
+
+    .auth-status {
+      max-width: 900px;
+      margin: 16px auto 0;
+      text-align:center;
+    }
   </style>
 </head>
 <body>
@@ -231,7 +311,6 @@
         <img src="ILUMAE15.png" alt="Ilumae - Candles & Soaps" class="brand__logo"
              onerror="this.onerror=null;this.src='https://i.ibb.co/BZFp7Yt/ilumae-logo.png';">
       </a>
-      <!-- Enlace directo a InstagPEGram: reemplaza tu_usuario -->
       <a href="https://www.instagram.com/ilumae_ags?igsh=c2prcjlpOGx1cTQz&utm_source=qr" class="insta-btn" target="_blank" rel="noopener" aria-label="Ir a Instagram">📸 @ilumae_ags</a>
       <nav>
         <a href="#home" class="active">Home</a>
@@ -401,6 +480,71 @@
     </section>
   </main>
 
+  <!-- POPUP DESCUENTO -->
+  <div class="popup-overlay" id="discountPopup">
+    <div class="popup-card">
+      <button class="popup-close" id="closePopupBtn">&times;</button>
+      <h2>¡Bienvenida a ILUMAE! ✨</h2>
+      <p>
+        Regístrate con tu correo y recibe un 
+        <strong>descuento especial en tu primera compra.</strong>
+      </p>
+
+      <form id="popupRegisterForm">
+        <label for="popupEmail">Correo electrónico</label>
+        <input type="email" id="popupEmail" required placeholder="tucorreo@example.com" />
+
+        <label for="popupPassword">Crea una contraseña</label>
+        <input type="password" id="popupPassword" required placeholder="Mínimo 6 caracteres" />
+
+        <button type="submit">Crear cuenta y obtener descuento</button>
+      </form>
+
+      <p class="popup-note">
+        ¿Ya tienes cuenta? Inicia sesión en el apartado de Mi cuenta.
+      </p>
+    </div>
+  </div>
+
+  <!-- SECCIÓN DE LOGIN / REGISTRO NORMAL -->
+  <section id="authSection">
+    <h2>Mi cuenta</h2>
+
+    <div class="auth-forms">
+      <!-- LOGIN -->
+      <form id="loginForm">
+        <h3>Iniciar sesión</h3>
+        <label for="loginEmail">Correo</label>
+        <input type="email" id="loginEmail" required />
+
+        <label for="loginPassword">Contraseña</label>
+        <input type="password" id="loginPassword" required />
+
+        <button type="submit">Entrar</button>
+      </form>
+
+      <!-- REGISTRO -->
+      <form id="registerForm">
+        <h3>Crear cuenta</h3>
+        <label for="registerEmail">Correo</label>
+        <input type="email" id="registerEmail" required />
+
+        <label for="registerPassword">Contraseña</label>
+        <input type="password" id="registerPassword" required />
+
+        <button type="submit">Registrarme</button>
+      </form>
+    </div>
+
+    <div class="auth-status">
+      <p id="authMessage"></p>
+      <p id="userInfo" style="display:none;">
+        Sesión iniciada como: <span id="userEmailSpan"></span>
+      </p>
+      <button id="logoutBtn" style="display:none;">Cerrar sesión</button>
+    </div>
+  </section>
+
   <footer class="footer">
     <div class="container">
       <div class="footer__inner">
@@ -454,7 +598,7 @@
     </div>
   </div>
 
-    <script>
+  <script>
     // --- Carrito: persistente en localStorage ---
     let cart = [];
 
@@ -640,5 +784,159 @@
       });
     }
   </script>
+
+  <!-- 🔥 LOGIN + POPUP CON FIREBASE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import { 
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBVeMNcoN8TAq7m9VgvD8ng-YUNuQwmJVQ",
+      authDomain: "ilumae-82b55.firebaseapp.com",
+      projectId: "ilumae-82b55",
+      storageBucket: "ilumae-82b55.firebasestorage.app",
+      messagingSenderId: "720491821338",
+      appId: "1:720491821338:web:330ad22e4088d3da06d4a3",
+      measurementId: "G-JS072RSPXV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const discountPopup   = document.getElementById('discountPopup');
+    const closePopupBtn   = document.getElementById('closePopupBtn');
+    const popupRegisterForm = document.getElementById('popupRegisterForm');
+    const popupEmail      = document.getElementById('popupEmail');
+    const popupPassword   = document.getElementById('popupPassword');
+
+    const loginForm       = document.getElementById('loginForm');
+    const registerForm    = document.getElementById('registerForm');
+    const loginEmail      = document.getElementById('loginEmail');
+    const loginPassword   = document.getElementById('loginPassword');
+    const registerEmail   = document.getElementById('registerEmail');
+    const registerPassword= document.getElementById('registerPassword');
+
+    const authMessage     = document.getElementById('authMessage');
+    const userInfo        = document.getElementById('userInfo');
+    const userEmailSpan   = document.getElementById('userEmailSpan');
+    const logoutBtn       = document.getElementById('logoutBtn');
+
+    const DISCOUNT_CODE = "ILUMAE10";
+
+    function maybeShowPopup() {
+      const alreadyRegistered = localStorage.getItem('ilumae_registered');
+      const popupClosed = localStorage.getItem('ilumae_popup_closed');
+
+      if (!alreadyRegistered && !popupClosed) {
+        discountPopup.style.display = 'flex';
+      }
+    }
+
+    if (closePopupBtn) {
+      closePopupBtn.addEventListener('click', () => {
+        discountPopup.style.display = 'none';
+        localStorage.setItem('ilumae_popup_closed', 'true');
+      });
+    }
+
+    if (popupRegisterForm) {
+      popupRegisterForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = popupEmail.value.trim();
+        const password = popupPassword.value.trim();
+
+        try {
+          await createUserWithEmailAndPassword(auth, email, password);
+          localStorage.setItem('ilumae_registered', 'true');
+          discountPopup.style.display = 'none';
+          authMessage.textContent = `Cuenta creada. Tu código de descuento es: ${DISCOUNT_CODE}`;
+          authMessage.style.color = "#2A2A2A";
+        } catch (error) {
+          console.error(error);
+          authMessage.textContent = "Error al registrar desde el popup: " + error.message;
+          authMessage.style.color = "red";
+        }
+      });
+    }
+
+    if (registerForm) {
+      registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = registerEmail.value.trim();
+        const password = registerPassword.value.trim();
+
+        try {
+          await createUserWithEmailAndPassword(auth, email, password);
+          localStorage.setItem('ilumae_registered', 'true');
+          authMessage.textContent = `Cuenta creada. Tu código de descuento es: ${DISCOUNT_CODE}`;
+          authMessage.style.color = "#2A2A2A";
+          registerForm.reset();
+        } catch (error) {
+          console.error(error);
+          authMessage.textContent = "Error al registrarte: " + error.message;
+          authMessage.style.color = "red";
+        }
+      });
+    }
+
+    if (loginForm) {
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = loginEmail.value.trim();
+        const password = loginPassword.value.trim();
+
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+          authMessage.textContent = "Sesión iniciada correctamente 💕";
+          authMessage.style.color = "#2A2A2A";
+          loginForm.reset();
+        } catch (error) {
+          console.error(error);
+          authMessage.textContent = "Error al iniciar sesión: " + error.message;
+          authMessage.style.color = "red";
+        }
+      });
+    }
+
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async () => {
+        try {
+          await signOut(auth);
+          authMessage.textContent = "Sesión cerrada.";
+          authMessage.style.color = "#2A2A2A";
+        } catch (error) {
+          console.error(error);
+          authMessage.textContent = "Error al cerrar sesión: " + error.message;
+          authMessage.style.color = "red";
+        }
+      });
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        if (userInfo && userEmailSpan && logoutBtn) {
+          userInfo.style.display = "block";
+          userEmailSpan.textContent = user.email;
+          logoutBtn.style.display = "inline-block";
+        }
+      } else {
+        if (userInfo && logoutBtn) {
+          userInfo.style.display = "none";
+          logoutBtn.style.display = "none";
+        }
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      maybeShowPopup();
+    });
+  </script>
 </body>
 </html>
+
