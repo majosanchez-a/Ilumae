@@ -158,7 +158,7 @@
       .catalog__grid{grid-template-columns:1fr;}
     }
 
-    /* ==== POPUP DESCUENTO ==== */
+    /* ==== POPUP GENÉRICO (descuento / envío) ==== */
     .popup-overlay {
       position: fixed;
       inset: 0;
@@ -598,6 +598,37 @@
     </div>
   </div>
 
+  <!-- MODAL DATOS DE ENVÍO -->
+  <div class="popup-overlay" id="shippingOverlay">
+    <div class="popup-card">
+      <button class="popup-close" id="closeShippingBtn">&times;</button>
+      <h2>Datos de envío 📦</h2>
+      <p>Cuéntanos a dónde enviamos tus velitas ✨</p>
+
+      <form id="shippingForm">
+        <label for="shipName">Nombre completo</label>
+        <input type="text" id="shipName" required placeholder="Nombre y apellido" />
+
+        <label for="shipPhone">Teléfono</label>
+        <input type="tel" id="shipPhone" required placeholder="10 dígitos" />
+
+        <label for="shipAddress">Calle y número</label>
+        <input type="text" id="shipAddress" required placeholder="Calle, número, colonia" />
+
+        <label for="shipCity">Ciudad y estado</label>
+        <input type="text" id="shipCity" required placeholder="Ej. Aguascalientes, Ags." />
+
+        <label for="shipCP">Código postal</label>
+        <input type="text" id="shipCP" required placeholder="CP" />
+
+        <label for="shipNotes">Referencias (opcional)</label>
+        <input type="text" id="shipNotes" placeholder="Color de puerta, puntos de referencia, etc." />
+
+        <button type="submit">Confirmar pedido</button>
+      </form>
+    </div>
+  </div>
+
   <script>
     // --- Carrito: persistente en localStorage ---
     let cart = [];
@@ -700,8 +731,14 @@
     }
 
     function checkout() {
-      const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-      alert(`Total a pagar: $${total}. Implementa tu pasarela de pago para completar la compra.`);
+      if (!cart || cart.length === 0) {
+        alert('Tu carrito está vacío.');
+        return;
+      }
+      const shippingOverlay = document.getElementById('shippingOverlay');
+      if (shippingOverlay) {
+        shippingOverlay.style.display = 'flex';
+      }
     }
 
     // Año en el footer
@@ -785,7 +822,7 @@
     }
   </script>
 
-  <!-- 🔥 LOGIN + POPUP CON FIREBASE -->
+  <!-- 🔥 LOGIN + POPUP + PEDIDOS CON FIREBASE -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
     import { 
@@ -795,6 +832,12 @@
       signOut,
       onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBVeMNcoN8TAq7m9VgvD8ng-YUNuQwmJVQ",
@@ -808,6 +851,7 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db   = getFirestore(app);
 
     const discountPopup   = document.getElementById('discountPopup');
     const closePopupBtn   = document.getElementById('closePopupBtn');
@@ -826,6 +870,18 @@
     const userInfo        = document.getElementById('userInfo');
     const userEmailSpan   = document.getElementById('userEmailSpan');
     const logoutBtn       = document.getElementById('logoutBtn');
+
+    // Elementos del formulario de envío
+    const shippingOverlay = document.getElementById('shippingOverlay');
+    const closeShippingBtn = document.getElementById('closeShippingBtn');
+    const shippingForm    = document.getElementById('shippingForm');
+
+    const shipName   = document.getElementById('shipName');
+    const shipPhone  = document.getElementById('shipPhone');
+    const shipAddress= document.getElementById('shipAddress');
+    const shipCity   = document.getElementById('shipCity');
+    const shipCP     = document.getElementById('shipCP');
+    const shipNotes  = document.getElementById('shipNotes');
 
     const DISCOUNT_CODE = "ILUMAE10";
 
@@ -933,10 +989,72 @@
       }
     });
 
+    // Cerrar modal de envío
+    if (closeShippingBtn && shippingOverlay) {
+      closeShippingBtn.addEventListener('click', () => {
+        shippingOverlay.style.display = 'none';
+      });
+    }
+
+    // Guardar pedido en Firestore al enviar datos de envío
+    if (shippingForm) {
+      shippingForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        let cartFromStorage = [];
+        try {
+          cartFromStorage = JSON.parse(localStorage.getItem('ilumae_cart')) || [];
+        } catch (err) {
+          cartFromStorage = [];
+        }
+
+        if (!cartFromStorage.length) {
+          alert("Tu carrito está vacío, vuelve a agregar productos.");
+          return;
+        }
+
+        const total = cartFromStorage.reduce((s, i) => s + (i.price * i.qty), 0);
+
+        const shippingData = {
+          name: shipName.value.trim(),
+          phone: shipPhone.value.trim(),
+          address: shipAddress.value.trim(),
+          city: shipCity.value.trim(),
+          cp: shipCP.value.trim(),
+          notes: shipNotes.value.trim() || null
+        };
+
+        const user = auth.currentUser;
+
+        try {
+          await addDoc(collection(db, "orders"), {
+            createdAt: serverTimestamp(),
+            userUid: user ? user.uid : null,
+            userEmail: user ? user.email : null,
+            shipping: shippingData,
+            items: cartFromStorage,
+            total: total,
+            status: "pendiente"
+          });
+
+          localStorage.removeItem('ilumae_cart');
+
+          alert("¡Gracias por tu pedido! 💖 Nos pondremos en contacto para confirmar tu envío.");
+
+          if (shippingOverlay) shippingOverlay.style.display = 'none';
+          window.location.reload();
+        } catch (error) {
+          console.error(error);
+          alert("Ocurrió un error al guardar tu pedido. Intenta de nuevo o escríbenos por WhatsApp 🫶");
+        }
+      });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       maybeShowPopup();
     });
   </script>
 </body>
 </html>
+
 
