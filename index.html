@@ -835,10 +835,8 @@
       });
     }
   </script>
-
   <!-- 🔥 LOGIN + POPUP + PEDIDOS CON FIREBASE -->
-  <!-- 🔥 LOGIN + POPUP + PEDIDOS CON FIREBASE -->
-  <script type="module" defer>
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
     import { 
       getAuth,
@@ -851,7 +849,10 @@
       getFirestore,
       collection,
       addDoc,
-      serverTimestamp
+      serverTimestamp,
+      doc,
+      updateDoc,
+      getDocs
     } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -870,11 +871,130 @@
 
     const DISCOUNT_CODE = "ILUMAE10";
 
-    // Todo el manejo de DOM lo hacemos cuando ya está cargado
-    window.addEventListener('DOMContentLoaded', () => {
+    // ============= FUNCIONES DE PEDIDOS (mis pedidos + admin) ============
+    async function loadUserOrders(userUid) {
+      const ordersContainer = document.getElementById("ordersContainer");
+      if (!ordersContainer) return;
+
+      ordersContainer.innerHTML = "<p>Cargando tus pedidos...</p>";
+
+      try {
+        const q = collection(db, "orders");
+        const snapshot = await getDocs(q);
+
+        const userOrders = snapshot.docs
+          .filter(d => d.data().userUid === userUid)
+          .map(d => ({ id: d.id, ...d.data() }));
+
+        if (userOrders.length === 0) {
+          ordersContainer.innerHTML = `
+            <p style="text-align:center; color:var(--graphite-60);">
+              Aún no tienes pedidos 💕
+            </p>`;
+          return;
+        }
+
+        let html = "";
+
+        userOrders.forEach(order => {
+          const date = order.createdAt?.toDate
+            ? order.createdAt.toDate().toLocaleString("es-MX")
+            : "Fecha no disponible";
+
+          html += `
+            <div style="
+              background:white;
+              padding:20px;
+              margin-bottom:20px;
+              border-radius:16px;
+              box-shadow: var(--shadow-sm);
+            ">
+              <h3 style="margin-bottom:10px;font-family:var(--font-display);">
+                Pedido #${order.id.substring(0,6).toUpperCase()}
+              </h3>
+
+              <p style="color:var(--graphite-60); margin-bottom:10px;">
+                <strong>Fecha:</strong> ${date}<br>
+                <strong>Total:</strong> $${order.total} MXN
+              </p>
+
+              <h4 style="margin:15px 0 8px;">Productos:</h4>
+              <ul style="padding-left:18px; line-height:1.6;">
+                ${order.items.map(i => `
+                  <li>${i.name} — $${i.price} x ${i.qty}</li>
+                `).join("")}
+              </ul>
+
+              <h4 style="margin:15px 0 8px;">Datos de envío:</h4>
+              <p style="color:var(--graphite-60); line-height:1.6;">
+                ${order.shipping.name}<br>
+                ${order.shipping.address}<br>
+                ${order.shipping.city}, CP ${order.shipping.cp}<br>
+                Tel: ${order.shipping.phone}<br>
+                ${order.shipping.notes ? "Notas: " + order.shipping.notes : ""}
+              </p>
+
+              <h4 style="margin-top:20px;">Estado del pedido:</h4>
+              <select id="status-${order.id}" style="padding:8px; border-radius:8px;">
+                <option value="pendiente"  ${order.status === "pendiente"  ? "selected" : ""}>Pendiente</option>
+                <option value="preparando" ${order.status === "preparando" ? "selected" : ""}>Preparando</option>
+                <option value="enviado"    ${order.status === "enviado"    ? "selected" : ""}>Enviado</option>
+                <option value="entregado"  ${order.status === "entregado"  ? "selected" : ""}>Entregado</option>
+              </select>
+
+              <h4 style="margin-top:20px;">Número de seguimiento:</h4>
+              <input
+                id="tracking-${order.id}"
+                type="text"
+                placeholder="Ej. DHL872193..."
+                value="${order.tracking || ""}"
+                style="padding:8px; border-radius:8px; width:100%;"
+              />
+
+              <button
+                onclick="updateOrder('${order.id}')"
+                style="margin-top:14px; width:100%; background:#C9A769; color:white; padding:12px; border:none; border-radius:12px; cursor:pointer;"
+              >
+                Guardar cambios
+              </button>
+            </div>
+          `;
+        });
+
+        ordersContainer.innerHTML = html;
+
+      } catch (err) {
+        console.error(err);
+        ordersContainer.innerHTML = `
+          <p style="color:red; text-align:center;">
+            Error cargando pedidos 💔
+          </p>`;
+      }
+    }
+
+    // para que el botón "Guardar cambios" funcione
+    window.updateOrder = async function(orderId) {
+      const statusEl   = document.getElementById(`status-${orderId}`);
+      const trackingEl = document.getElementById(`tracking-${orderId}`);
+      if (!statusEl || !trackingEl) return;
+
+      const status   = statusEl.value;
+      const tracking = trackingEl.value;
+
+      try {
+        const ref = doc(db, "orders", orderId);
+        await updateDoc(ref, { status, tracking });
+        alert("Pedido actualizado correctamente ✨");
+      } catch (err) {
+        console.error(err);
+        alert("Error al actualizar el pedido 💔");
+      }
+    };
+
+    // ================== LÓGICA DE UI (popup, login, checkout, etc.) ==================
+    window.addEventListener("DOMContentLoaded", () => {
       console.log("🔥 DOM listo, inicializando ILUMAE…");
 
-      // ---------- POPUP DESCUENTO ----------
       const discountPopup     = document.getElementById('discountPopup');
       const closePopupBtn     = document.getElementById('closePopupBtn');
       const popupRegisterForm = document.getElementById('popupRegisterForm');
@@ -893,7 +1013,6 @@
       const userEmailSpan     = document.getElementById('userEmailSpan');
       const logoutBtn         = document.getElementById('logoutBtn');
 
-      // Elementos del formulario de envío
       const shippingOverlay   = document.getElementById('shippingOverlay');
       const closeShippingBtn  = document.getElementById('closeShippingBtn');
       const shippingForm      = document.getElementById('shippingForm');
@@ -914,7 +1033,7 @@
         }
       }
 
-      // --- Cerrar popup descuento ---
+      // Cerrar popup descuento
       if (closePopupBtn && discountPopup) {
         closePopupBtn.addEventListener('click', () => {
           discountPopup.style.display = 'none';
@@ -922,7 +1041,7 @@
         });
       }
 
-      // --- Registro desde POPUP ---
+      // Registro desde popup
       if (popupRegisterForm && popupEmail && popupPassword) {
         popupRegisterForm.addEventListener('submit', async (e) => {
           e.preventDefault();
@@ -947,7 +1066,7 @@
         });
       }
 
-      // ---------- LOGIN / REGISTRO NORMAL ----------
+      // Registro normal
       if (registerForm && registerEmail && registerPassword) {
         registerForm.addEventListener('submit', async (e) => {
           e.preventDefault();
@@ -972,6 +1091,7 @@
         });
       }
 
+      // Login
       if (loginForm && loginEmail && loginPassword) {
         loginForm.addEventListener('submit', async (e) => {
           e.preventDefault();
@@ -995,6 +1115,7 @@
         });
       }
 
+      // Logout
       if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
           try {
@@ -1013,48 +1134,39 @@
         });
       }
 
-      // ---------- Estado de auth ----------
-      // ---------- Estado de auth ----------
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    // Mostrar info de usuario
-    if (userInfo && userEmailSpan && logoutBtn) {
-      userInfo.style.display = "block";
-      userEmailSpan.textContent = user.email;
-      logoutBtn.style.display = "inline-block";
-    }
+      // Estado de auth (mostrar email + pedidos)
+      onAuthStateChanged(auth, (user) => {
+        const ordersSection = document.getElementById("myOrders");
 
-    // ⭐ MOSTRAR SECCIÓN DE PEDIDOS ⭐
-    const ordersSection = document.getElementById("myOrders");
-    if (ordersSection) {
-      ordersSection.style.display = "block";
-      loadUserOrders(user.uid); // ← Aquí cargamos los pedidos
-    }
+        if (user) {
+          if (userInfo && userEmailSpan && logoutBtn) {
+            userInfo.style.display = "block";
+            userEmailSpan.textContent = user.email;
+            logoutBtn.style.display = "inline-block";
+          }
+          if (ordersSection) {
+            ordersSection.style.display = "block";
+            loadUserOrders(user.uid);
+          }
+        } else {
+          if (userInfo && logoutBtn) {
+            userInfo.style.display = "none";
+            logoutBtn.style.display = "none";
+          }
+          if (ordersSection) {
+            ordersSection.style.display = "none";
+          }
+        }
+      });
 
-  } else {
-    // Ocultar info de usuario
-    if (userInfo && logoutBtn) {
-      userInfo.style.display = "none";
-      logoutBtn.style.display = "none";
-    }
-
-    // ⭐ OCULTAR SECCIÓN DE PEDIDOS ⭐
-    const ordersSection = document.getElementById("myOrders");
-    if (ordersSection) {
-      ordersSection.style.display = "none";
-    }
-  }
-});
-
-
-      // ---------- Cerrar modal de envío ----------
+      // Cerrar modal de envío
       if (closeShippingBtn && shippingOverlay) {
         closeShippingBtn.addEventListener('click', () => {
           shippingOverlay.style.display = 'none';
         });
       }
 
-      // ---------- Guardar pedido en Firestore ----------
+      // Guardar pedido
       if (shippingForm) {
         shippingForm.addEventListener('submit', async (e) => {
           e.preventDefault();
@@ -1093,7 +1205,8 @@ onAuthStateChanged(auth, (user) => {
               shipping: shippingData,
               items: cartFromStorage,
               total: total,
-              status: "pendiente"
+              status: "pendiente",
+              tracking: ""
             });
 
             localStorage.removeItem('ilumae_cart');
@@ -1109,132 +1222,7 @@ onAuthStateChanged(auth, (user) => {
         });
       }
 
-      // ===================== MIS PEDIDOS + ADMIN EDIT =====================
-import {
-  doc,
-  updateDoc,
-  getDocs,
-  collection
-} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-
-async function loadUserOrders(userUid) {
-  const ordersContainer = document.getElementById("ordersContainer");
-  ordersContainer.innerHTML = "<p>Cargando tus pedidos...</p>";
-
-  try {
-    const q = collection(db, "orders");
-    const snapshot = await getDocs(q);
-
-    // Filtrar pedidos del usuario
-    const userOrders = snapshot.docs
-      .filter(doc => doc.data().userUid === userUid)
-      .map(doc => ({ id: doc.id, ...doc.data() }));
-
-    if (userOrders.length === 0) {
-      ordersContainer.innerHTML = `
-        <p style="text-align:center; color:var(--graphite-60);">
-          Aún no tienes pedidos 💕
-        </p>`;
-      return;
-    }
-
-    let html = "";
-
-    userOrders.forEach(order => {
-      const date = order.createdAt?.toDate
-        ? order.createdAt.toDate().toLocaleString("es-MX")
-        : "Fecha no disponible";
-
-      html += `
-        <div style="
-          background:white;
-          padding:20px;
-          margin-bottom:20px;
-          border-radius:16px;
-          box-shadow: var(--shadow-sm);
-        ">
-          <h3 style="margin-bottom:10px;font-family:var(--font-display);">
-            Pedido #${order.id.substring(0,6).toUpperCase()}
-          </h3>
-
-          <p style="color:var(--graphite-60); margin-bottom:10px;">
-            <strong>Fecha:</strong> ${date}<br>
-            <strong>Total:</strong> $${order.total} MXN
-          </p>
-
-          <h4 style="margin:15px 0 8px;">Productos:</h4>
-          <ul style="padding-left:18px; line-height:1.6;">
-            ${order.items.map(i => `
-              <li>${i.name} — $${i.price} x ${i.qty}</li>
-            `).join("")}
-          </ul>
-
-          <h4 style="margin:15px 0 8px;">Datos de envío:</h4>
-          <p style="color:var(--graphite-60); line-height:1.6;">
-            ${order.shipping.name}<br>
-            ${order.shipping.address}<br>
-            ${order.shipping.city}, CP ${order.shipping.cp}<br>
-            Tel: ${order.shipping.phone}<br>
-            ${order.shipping.notes ? "Notas: " + order.shipping.notes : ""}
-          </p>
-
-          <h4 style="margin-top:20px;">Estado del pedido:</h4>
-          <select id="status-${order.id}" style="padding:8px; border-radius:8px;">
-            <option value="pendiente" ${order.status === "pendiente" ? "selected" : ""}>Pendiente</option>
-            <option value="preparando" ${order.status === "preparando" ? "selected" : ""}>Preparando</option>
-            <option value="enviado" ${order.status === "enviado" ? "selected" : ""}>Enviado</option>
-            <option value="entregado" ${order.status === "entregado" ? "selected" : ""}>Entregado</option>
-          </select>
-
-          <h4 style="margin-top:20px;">Número de seguimiento:</h4>
-          <input
-            id="tracking-${order.id}"
-            type="text"
-            placeholder="Ej. DHL872193..."
-            value="${order.tracking || ""}"
-            style="padding:8px; border-radius:8px; width:100%;"
-          />
-
-          <button
-            onclick="updateOrder('${order.id}')"
-            style="margin-top:14px; width:100%; background:#C9A769; color:white; padding:12px; border:none; border-radius:12px; cursor:pointer;"
-          >
-            Guardar cambios
-          </button>
-        </div>
-      `;
-    });
-
-    ordersContainer.innerHTML = html;
-
-  } catch (err) {
-    console.error(err);
-    ordersContainer.innerHTML = `
-      <p style="color:red; text-align:center;">
-        Error cargando pedidos 💔
-      </p>`;
-  }
-}
-
-// ===================== ACTUALIZAR PEDIDO (solo admin) =====================
-window.updateOrder = async function(orderId) {
-  const status = document.getElementById(`status-${orderId}`).value;
-  const tracking = document.getElementById(`tracking-${orderId}`).value;
-
-  try {
-    const ref = doc(db, "orders", orderId);
-    await updateDoc(ref, {
-      status: status,
-      tracking: tracking
-    });
-
-    alert("Pedido actualizado correctamente ✨");
-  } catch (err) {
-    console.error(err);
-    alert("Error al actualizar el pedido 💔");
-  }
-};
-// Mostramos popup de descuento solo si aplica
+      // Mostrar popup de descuento si aplica
       maybeShowPopup();
     });
   </script>
