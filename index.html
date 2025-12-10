@@ -823,6 +823,7 @@
   </script>
 
   <!-- 🔥 LOGIN + POPUP + PEDIDOS CON FIREBASE -->
+  <!-- 🔥 LOGIN + POPUP + PEDIDOS CON FIREBASE -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
     import { 
@@ -853,204 +854,230 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    const discountPopup   = document.getElementById('discountPopup');
-    const closePopupBtn   = document.getElementById('closePopupBtn');
-    const popupRegisterForm = document.getElementById('popupRegisterForm');
-    const popupEmail      = document.getElementById('popupEmail');
-    const popupPassword   = document.getElementById('popupPassword');
-
-    const loginForm       = document.getElementById('loginForm');
-    const registerForm    = document.getElementById('registerForm');
-    const loginEmail      = document.getElementById('loginEmail');
-    const loginPassword   = document.getElementById('loginPassword');
-    const registerEmail   = document.getElementById('registerEmail');
-    const registerPassword= document.getElementById('registerPassword');
-
-    const authMessage     = document.getElementById('authMessage');
-    const userInfo        = document.getElementById('userInfo');
-    const userEmailSpan   = document.getElementById('userEmailSpan');
-    const logoutBtn       = document.getElementById('logoutBtn');
-
-    // Elementos del formulario de envío
-    const shippingOverlay = document.getElementById('shippingOverlay');
-    const closeShippingBtn = document.getElementById('closeShippingBtn');
-    const shippingForm    = document.getElementById('shippingForm');
-
-    const shipName   = document.getElementById('shipName');
-    const shipPhone  = document.getElementById('shipPhone');
-    const shipAddress= document.getElementById('shipAddress');
-    const shipCity   = document.getElementById('shipCity');
-    const shipCP     = document.getElementById('shipCP');
-    const shipNotes  = document.getElementById('shipNotes');
-
     const DISCOUNT_CODE = "ILUMAE10";
 
-    function maybeShowPopup() {
-      const alreadyRegistered = localStorage.getItem('ilumae_registered');
-      const popupClosed = localStorage.getItem('ilumae_popup_closed');
+    // Todo el manejo de DOM lo hacemos cuando ya está cargado
+    window.addEventListener('DOMContentLoaded', () => {
+      console.log("🔥 DOM listo, inicializando ILUMAE…");
 
-      if (!alreadyRegistered && !popupClosed) {
-        discountPopup.style.display = 'flex';
+      // ---------- POPUP DESCUENTO ----------
+      const discountPopup     = document.getElementById('discountPopup');
+      const closePopupBtn     = document.getElementById('closePopupBtn');
+      const popupRegisterForm = document.getElementById('popupRegisterForm');
+      const popupEmail        = document.getElementById('popupEmail');
+      const popupPassword     = document.getElementById('popupPassword');
+
+      const loginForm         = document.getElementById('loginForm');
+      const registerForm      = document.getElementById('registerForm');
+      const loginEmail        = document.getElementById('loginEmail');
+      const loginPassword     = document.getElementById('loginPassword');
+      const registerEmail     = document.getElementById('registerEmail');
+      const registerPassword  = document.getElementById('registerPassword');
+
+      const authMessage       = document.getElementById('authMessage');
+      const userInfo          = document.getElementById('userInfo');
+      const userEmailSpan     = document.getElementById('userEmailSpan');
+      const logoutBtn         = document.getElementById('logoutBtn');
+
+      // Elementos del formulario de envío
+      const shippingOverlay   = document.getElementById('shippingOverlay');
+      const closeShippingBtn  = document.getElementById('closeShippingBtn');
+      const shippingForm      = document.getElementById('shippingForm');
+
+      const shipName   = document.getElementById('shipName');
+      const shipPhone  = document.getElementById('shipPhone');
+      const shipAddress= document.getElementById('shipAddress');
+      const shipCity   = document.getElementById('shipCity');
+      const shipCP     = document.getElementById('shipCP');
+      const shipNotes  = document.getElementById('shipNotes');
+
+      function maybeShowPopup() {
+        const alreadyRegistered = localStorage.getItem('ilumae_registered');
+        const popupClosed = localStorage.getItem('ilumae_popup_closed');
+
+        if (!alreadyRegistered && !popupClosed && discountPopup) {
+          discountPopup.style.display = 'flex';
+        }
       }
-    }
 
-    if (closePopupBtn) {
-      closePopupBtn.addEventListener('click', () => {
-        discountPopup.style.display = 'none';
-        localStorage.setItem('ilumae_popup_closed', 'true');
-      });
-    }
-
-    if (popupRegisterForm) {
-      popupRegisterForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = popupEmail.value.trim();
-        const password = popupPassword.value.trim();
-
-        try {
-          await createUserWithEmailAndPassword(auth, email, password);
-          localStorage.setItem('ilumae_registered', 'true');
+      // --- Cerrar popup descuento ---
+      if (closePopupBtn && discountPopup) {
+        closePopupBtn.addEventListener('click', () => {
           discountPopup.style.display = 'none';
-          authMessage.textContent = `Cuenta creada. Tu código de descuento es: ${DISCOUNT_CODE}`;
-          authMessage.style.color = "#2A2A2A";
-        } catch (error) {
-          console.error(error);
-          authMessage.textContent = "Error al registrar desde el popup: " + error.message;
-          authMessage.style.color = "red";
-        }
-      });
-    }
-
-    if (registerForm) {
-      registerForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = registerEmail.value.trim();
-        const password = registerPassword.value.trim();
-
-        try {
-          await createUserWithEmailAndPassword(auth, email, password);
-          localStorage.setItem('ilumae_registered', 'true');
-          authMessage.textContent = `Cuenta creada. Tu código de descuento es: ${DISCOUNT_CODE}`;
-          authMessage.style.color = "#2A2A2A";
-          registerForm.reset();
-        } catch (error) {
-          console.error(error);
-          authMessage.textContent = "Error al registrarte: " + error.message;
-          authMessage.style.color = "red";
-        }
-      });
-    }
-
-    if (loginForm) {
-      loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = loginEmail.value.trim();
-        const password = loginPassword.value.trim();
-
-        try {
-          await signInWithEmailAndPassword(auth, email, password);
-          authMessage.textContent = "Sesión iniciada correctamente 💕";
-          authMessage.style.color = "#2A2A2A";
-          loginForm.reset();
-        } catch (error) {
-          console.error(error);
-          authMessage.textContent = "Error al iniciar sesión: " + error.message;
-          authMessage.style.color = "red";
-        }
-      });
-    }
-
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', async () => {
-        try {
-          await signOut(auth);
-          authMessage.textContent = "Sesión cerrada.";
-          authMessage.style.color = "#2A2A2A";
-        } catch (error) {
-          console.error(error);
-          authMessage.textContent = "Error al cerrar sesión: " + error.message;
-          authMessage.style.color = "red";
-        }
-      });
-    }
-
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        if (userInfo && userEmailSpan && logoutBtn) {
-          userInfo.style.display = "block";
-          userEmailSpan.textContent = user.email;
-          logoutBtn.style.display = "inline-block";
-        }
-      } else {
-        if (userInfo && logoutBtn) {
-          userInfo.style.display = "none";
-          logoutBtn.style.display = "none";
-        }
+          localStorage.setItem('ilumae_popup_closed', 'true');
+        });
       }
-    });
 
-    // Cerrar modal de envío
-    if (closeShippingBtn && shippingOverlay) {
-      closeShippingBtn.addEventListener('click', () => {
-        shippingOverlay.style.display = 'none';
+      // --- Registro desde POPUP ---
+      if (popupRegisterForm && popupEmail && popupPassword) {
+        popupRegisterForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const email = popupEmail.value.trim();
+          const password = popupPassword.value.trim();
+
+          try {
+            await createUserWithEmailAndPassword(auth, email, password);
+            localStorage.setItem('ilumae_registered', 'true');
+            if (discountPopup) discountPopup.style.display = 'none';
+            if (authMessage) {
+              authMessage.textContent = `Cuenta creada. Tu código de descuento es: ${DISCOUNT_CODE}`;
+              authMessage.style.color = "#2A2A2A";
+            }
+          } catch (error) {
+            console.error(error);
+            if (authMessage) {
+              authMessage.textContent = "Error al registrar desde el popup: " + error.message;
+              authMessage.style.color = "red";
+            }
+          }
+        });
+      }
+
+      // ---------- LOGIN / REGISTRO NORMAL ----------
+      if (registerForm && registerEmail && registerPassword) {
+        registerForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const email = registerEmail.value.trim();
+          const password = registerPassword.value.trim();
+
+          try {
+            await createUserWithEmailAndPassword(auth, email, password);
+            localStorage.setItem('ilumae_registered', 'true');
+            if (authMessage) {
+              authMessage.textContent = `Cuenta creada. Tu código de descuento es: ${DISCOUNT_CODE}`;
+              authMessage.style.color = "#2A2A2A";
+            }
+            registerForm.reset();
+          } catch (error) {
+            console.error(error);
+            if (authMessage) {
+              authMessage.textContent = "Error al registrarte: " + error.message;
+              authMessage.style.color = "red";
+            }
+          }
+        });
+      }
+
+      if (loginForm && loginEmail && loginPassword) {
+        loginForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const email = loginEmail.value.trim();
+          const password = loginPassword.value.trim();
+
+          try {
+            await signInWithEmailAndPassword(auth, email, password);
+            if (authMessage) {
+              authMessage.textContent = "Sesión iniciada correctamente 💕";
+              authMessage.style.color = "#2A2A2A";
+            }
+            loginForm.reset();
+          } catch (error) {
+            console.error(error);
+            if (authMessage) {
+              authMessage.textContent = "Error al iniciar sesión: " + error.message;
+              authMessage.style.color = "red";
+            }
+          }
+        });
+      }
+
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+          try {
+            await signOut(auth);
+            if (authMessage) {
+              authMessage.textContent = "Sesión cerrada.";
+              authMessage.style.color = "#2A2A2A";
+            }
+          } catch (error) {
+            console.error(error);
+            if (authMessage) {
+              authMessage.textContent = "Error al cerrar sesión: " + error.message;
+              authMessage.style.color = "red";
+            }
+          }
+        });
+      }
+
+      // ---------- Estado de auth ----------
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          if (userInfo && userEmailSpan && logoutBtn) {
+            userInfo.style.display = "block";
+            userEmailSpan.textContent = user.email;
+            logoutBtn.style.display = "inline-block";
+          }
+        } else {
+          if (userInfo && logoutBtn) {
+            userInfo.style.display = "none";
+            logoutBtn.style.display = "none";
+          }
+        }
       });
-    }
 
-    // Guardar pedido en Firestore al enviar datos de envío
-    if (shippingForm) {
-      shippingForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+      // ---------- Cerrar modal de envío ----------
+      if (closeShippingBtn && shippingOverlay) {
+        closeShippingBtn.addEventListener('click', () => {
+          shippingOverlay.style.display = 'none';
+        });
+      }
 
-        let cartFromStorage = [];
-        try {
-          cartFromStorage = JSON.parse(localStorage.getItem('ilumae_cart')) || [];
-        } catch (err) {
-          cartFromStorage = [];
-        }
+      // ---------- Guardar pedido en Firestore ----------
+      if (shippingForm) {
+        shippingForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          console.log("📦 Enviando pedido…");
 
-        if (!cartFromStorage.length) {
-          alert("Tu carrito está vacío, vuelve a agregar productos.");
-          return;
-        }
+          let cartFromStorage = [];
+          try {
+            cartFromStorage = JSON.parse(localStorage.getItem('ilumae_cart')) || [];
+          } catch (err) {
+            cartFromStorage = [];
+          }
 
-        const total = cartFromStorage.reduce((s, i) => s + (i.price * i.qty), 0);
+          if (!cartFromStorage.length) {
+            alert("Tu carrito está vacío, vuelve a agregar productos.");
+            return;
+          }
 
-        const shippingData = {
-          name: shipName.value.trim(),
-          phone: shipPhone.value.trim(),
-          address: shipAddress.value.trim(),
-          city: shipCity.value.trim(),
-          cp: shipCP.value.trim(),
-          notes: shipNotes.value.trim() || null
-        };
+          const total = cartFromStorage.reduce((s, i) => s + (i.price * i.qty), 0);
 
-        const user = auth.currentUser;
+          const shippingData = {
+            name: shipName?.value.trim()   || "",
+            phone: shipPhone?.value.trim() || "",
+            address: shipAddress?.value.trim() || "",
+            city: shipCity?.value.trim()   || "",
+            cp: shipCP?.value.trim()       || "",
+            notes: (shipNotes?.value.trim() || null)
+          };
 
-        try {
-          await addDoc(collection(db, "orders"), {
-            createdAt: serverTimestamp(),
-            userUid: user ? user.uid : null,
-            userEmail: user ? user.email : null,
-            shipping: shippingData,
-            items: cartFromStorage,
-            total: total,
-            status: "pendiente"
-          });
+          const user = auth.currentUser;
 
-          localStorage.removeItem('ilumae_cart');
+          try {
+            await addDoc(collection(db, "orders"), {
+              createdAt: serverTimestamp(),
+              userUid: user ? user.uid : null,
+              userEmail: user ? user.email : null,
+              shipping: shippingData,
+              items: cartFromStorage,
+              total: total,
+              status: "pendiente"
+            });
 
-          alert("¡Gracias por tu pedido! 💖 Nos pondremos en contacto para confirmar tu envío.");
+            localStorage.removeItem('ilumae_cart');
 
-          if (shippingOverlay) shippingOverlay.style.display = 'none';
-          window.location.reload();
-        } catch (error) {
-          console.error(error);
-          alert("Ocurrió un error al guardar tu pedido. Intenta de nuevo o escríbenos por WhatsApp 🫶");
-        }
-      });
-    }
+            alert("¡Gracias por tu pedido! 💖 Nos pondremos en contacto para confirmar tu envío.");
 
-    document.addEventListener('DOMContentLoaded', () => {
+            if (shippingOverlay) shippingOverlay.style.display = 'none';
+            window.location.reload();
+          } catch (error) {
+            console.error(error);
+            alert("Ocurrió un error al guardar tu pedido. Intenta de nuevo o escríbenos por WhatsApp 🫶");
+          }
+        });
+      }
+
+      // Mostramos popup de descuento solo si aplica
       maybeShowPopup();
     });
   </script>
