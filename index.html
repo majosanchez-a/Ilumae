@@ -708,24 +708,35 @@
     const c=document.getElementById('cartItems');const t=document.getElementById('cartTotal');if(!c||!t)return;
     c.innerHTML='';
     if(!cart.length){c.innerHTML='<p style="padding:20px;color:var(--carbon60);text-align:center;">Tu carrito está vacío.</p>';t.textContent='$0 MXN';return;}
-    cart.forEach(item=>{
+    cart.forEach((item,idx)=>{
       const el=document.createElement('div');el.className='cart-item';
-      const safeKey=item.key.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
       el.innerHTML=`<img src="${item.img}" alt="${item.name}">
         <div class="info">
           <strong style="font-size:14px;">${item.name}</strong>
           ${item.customText?`<p class="custom-text">"${item.customText}"</p>`:''}
           <div style="color:var(--carbon60);font-size:13px;margin-top:4px;">$${item.price} MXN · x${item.qty}</div>
           <div class="qty-controls">
-            <button onclick="changeQty('${safeKey}',-1)">−</button>
+            <button onclick="changeQtyByIdx(${idx},-1)">−</button>
             <span style="min-width:24px;text-align:center;">${item.qty}</span>
-            <button onclick="changeQty('${safeKey}',1)">+</button>
-            <button style="background:none;border:none;cursor:pointer;color:var(--carbon60);font-size:12px;margin-left:8px;" onclick="removeFromCart('${safeKey}')">Eliminar</button>
+            <button onclick="changeQtyByIdx(${idx},1)">+</button>
+            <button style="background:none;border:none;cursor:pointer;color:var(--carbon60);font-size:12px;margin-left:8px;" onclick="removeByIdx(${idx})">Eliminar</button>
           </div>
         </div>`;
       c.appendChild(el);
     });
     t.textContent='$'+cart.reduce((s,i)=>s+i.price*i.qty,0)+' MXN';
+  }
+
+  function changeQtyByIdx(idx,delta){
+    if(!cart[idx])return;
+    cart[idx].qty+=delta;
+    if(cart[idx].qty<=0)cart.splice(idx,1);
+    saveCart();
+  }
+
+  function removeByIdx(idx){
+    cart.splice(idx,1);
+    saveCart();
   }
 
   function openCart(){document.getElementById('cartDrawer')?.classList.add('open');}
