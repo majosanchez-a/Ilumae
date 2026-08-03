@@ -27,7 +27,7 @@
     header{position:sticky;top:0;z-index:100;background:rgba(255,249,243,.93);backdrop-filter:blur(14px);border-bottom:1px solid rgba(54,61,61,.07);transition:box-shadow .3s}
     header.scrolled{box-shadow:var(--shadow-sm)}
     .nav__inner{display:flex;justify-content:space-between;align-items:center;height:76px}
-    .brand__logo{height:160px;width:auto;object-fit:contain}
+    .brand__logo{height:110px;width:auto;object-fit:contain}
     nav{display:flex;gap:4px}
     nav a{padding:8px 16px;border-radius:999px;font-size:14px;font-weight:500;letter-spacing:.3px;transition:all .25s}
     nav a:hover{background:var(--lavanda)}
@@ -115,10 +115,10 @@
     .flavor-chip.selected{background:var(--carbon);color:var(--blanco);border-color:var(--carbon)}
 
     /* MINI CAROUSEL PRODUCTO */
-    .product-carousel{position:relative;height:260px;overflow:hidden}
-    .product-carousel__track{display:flex;height:100%;transition:transform .7s ease-in-out}
-    .product-carousel__slide{min-width:100%;height:100%;flex-shrink:0}
-    .product-carousel__slide img{width:100%;height:100%;object-fit:cover}
+    .product-carousel{position:relative;height:260px;overflow:hidden;border-radius:var(--radius) var(--radius) 0 0}
+    .product-carousel__track{display:flex;height:100%;transition:transform .7s ease-in-out;will-change:transform}
+    .product-carousel__slide{min-width:100%;width:100%;height:100%;flex-shrink:0;flex-grow:0;overflow:hidden}
+    .product-carousel__slide img{width:100%;height:100%;object-fit:cover;display:block}
     .product-carousel__dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:2}
     .product-carousel__dot{width:6px;height:6px;border-radius:999px;background:rgba(255,249,243,.6);cursor:pointer;transition:all .3s;border:none;padding:0}
     .product-carousel__dot.active{background:var(--blanco);width:18px}
@@ -647,7 +647,7 @@
   <div class="container">
     <div class="footer__inner">
       <div class="footer__block">
-        <img src="ILUMAE15.png" alt="ILUMAE" style="height:200px;width:auto;margin-bottom:16px;" onerror="this.onerror=null;this.src='https://i.ibb.co/BZFp7Yt/ilumae-logo.png';">
+        <img src="ILUMAE15.png" alt="ILUMAE" style="height:110px;width:auto;margin-bottom:16px;" onerror="this.onerror=null;this.src='https://i.ibb.co/BZFp7Yt/ilumae-logo.png';">
         <p style="color:var(--carbon60);font-size:14px;line-height:1.7;">Velas artesanales hechas con amor para iluminar tus momentos especiales.</p>
       </div>
       <div class="footer__block">
