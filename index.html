@@ -114,6 +114,15 @@
     .flavor-chip:hover{border-color:var(--rosa)}
     .flavor-chip.selected{background:var(--carbon);color:var(--blanco);border-color:var(--carbon)}
 
+    /* MINI CAROUSEL PRODUCTO */
+    .product-carousel{position:relative;height:260px;overflow:hidden}
+    .product-carousel__track{display:flex;height:100%;transition:transform .7s ease-in-out}
+    .product-carousel__slide{min-width:100%;height:100%;flex-shrink:0}
+    .product-carousel__slide img{width:100%;height:100%;object-fit:cover}
+    .product-carousel__dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:2}
+    .product-carousel__dot{width:6px;height:6px;border-radius:999px;background:rgba(255,249,243,.6);cursor:pointer;transition:all .3s;border:none;padding:0}
+    .product-carousel__dot.active{background:var(--blanco);width:18px}
+
     /* CTA BUTTONS */
     .product__cta{width:100%;background:var(--carbon);color:var(--blanco);padding:12px;border:none;border-radius:999px;font:500 14px var(--sans);cursor:pointer;transition:all .3s;letter-spacing:.5px;margin-top:6px}
     .product__cta:hover{background:var(--rosa);color:var(--carbon)}
@@ -241,9 +250,9 @@
       <div class="carousel" data-carousel>
         <button class="carousel__arrow left" data-prev>‹</button>
         <div class="carousel__track" data-track>
-          <div class="carousel__slide"><img src="ILUMAE4.jpeg" alt="Velas ILUMAE"></div>
-          <div class="carousel__slide"><img src="ILUMAE6.jpeg" alt="Ambiente ILUMAE"></div>
-          <div class="carousel__slide"><img src="ILUMAE7.jpeg" alt="Velas premium"></div>
+          <div class="carousel__slide"><img src="ILUMAE11.png" alt="Velas ILUMAE"></div>
+          <div class="carousel__slide"><img src="ILUMAE12.png" alt="Ambiente ILUMAE"></div>
+          <div class="carousel__slide"><img src="ILUMAE14.png" alt="Velas premium"></div>
         </div>
         <button class="carousel__arrow right" data-next>›</button>
         <div class="carousel__dots" data-dots></div>
@@ -272,7 +281,7 @@
         <p>Cada vela es hecha a mano en Aguascalientes, con cera de soya sustentable, mechas de algodón puro y aceites esenciales seleccionados con intención. No solo iluminamos espacios — curamos momentos de calma y sofisticación.</p>
         <p>Al controlar cada eslabón del proceso, desde el diseño de nuestros moldes hasta el empaque final eco-friendly, garantizamos que la exclusividad no sea una promesa, sino una realidad palpable en cada entrega. ✨</p>
       </div>
-      <div class="about__image"><img src="ILUMAE13.jpeg" alt="Taller ILUMAE"></div>
+      <div class="about__image"><img src="ILUMAE13.png" alt="Taller ILUMAE"></div>
     </div>
   </div>
 </section>
@@ -288,8 +297,14 @@
 
       <!-- LÍNEA EVENTOS -->
       <article class="product">
-        <div class="product__image">
-          <img src="ILUMAE4.jpeg" alt="Línea Eventos">
+        <div class="product-carousel" data-pc="eventos">
+          <div class="product-carousel__track">
+            <div class="product-carousel__slide"><img src="ILUMAE5.png" alt="Eventos 1"></div>
+            <div class="product-carousel__slide"><img src="ILUMAE6.png" alt="Eventos 2"></div>
+            <div class="product-carousel__slide"><img src="ILUMAE7.png" alt="Eventos 3"></div>
+            <div class="product-carousel__slide"><img src="ILUMAE8.png" alt="Eventos 4"></div>
+          </div>
+          <div class="product-carousel__dots"></div>
           <span class="product__tag">Eventos</span>
         </div>
         <div class="product__body">
@@ -307,8 +322,13 @@
 
       <!-- LÍNEA CORPORATIVA -->
       <article class="product">
-        <div class="product__image">
-          <img src="ILUMAE6.jpeg" alt="Línea Corporativa">
+        <div class="product-carousel" data-pc="corporativa">
+          <div class="product-carousel__track">
+            <div class="product-carousel__slide"><img src="ILUMAE10.png" alt="Corporativa 1"></div>
+            <div class="product-carousel__slide"><img src="ILUMAE3.png" alt="Corporativa 2"></div>
+            <div class="product-carousel__slide"><img src="ILUMAE4.png" alt="Corporativa 3"></div>
+          </div>
+          <div class="product-carousel__dots"></div>
           <span class="product__tag">Corporativa</span>
         </div>
         <div class="product__body">
@@ -326,8 +346,13 @@
 
       <!-- BEVERAGE COLLECTION -->
       <article class="product">
-        <div class="product__image">
-          <img src="ILUMAE7.jpeg" alt="Beverage Collection">
+        <div class="product-carousel" data-pc="beverage">
+          <div class="product-carousel__track">
+            <div class="product-carousel__slide"><img src="ILUMAE1.png" alt="Beverage 1"></div>
+            <div class="product-carousel__slide"><img src="ILUMAE2.png" alt="Beverage 2"></div>
+            <div class="product-carousel__slide"><img src="ILUMAE9.png" alt="Beverage 3"></div>
+          </div>
+          <div class="product-carousel__dots"></div>
           <span class="product__tag">Nuevo</span>
         </div>
         <div class="product__body">
@@ -435,7 +460,7 @@
     </div>
     <div class="catalog__grid">
       <article class="product bestseller">
-        <div class="product__image"><img src="ILUMAE5.jpeg" alt="Favorita #1"><span class="product__tag">#1</span></div>
+        <div class="product__image"><img src="ILUMAE5.png" alt="Favorita #1"><span class="product__tag">#1</span></div>
         <div class="product__body">
           <p class="product__line">Línea Eventos</p>
           <h3>Vela de boda personalizada</h3>
@@ -443,7 +468,7 @@
         </div>
       </article>
       <article class="product bestseller">
-        <div class="product__image"><img src="ILUMAE9.jpeg" alt="Favorita #2"><span class="product__tag">#2</span></div>
+        <div class="product__image"><img src="ILUMAE9.png" alt="Favorita #2"><span class="product__tag">#2</span></div>
         <div class="product__body">
           <p class="product__line">Beverage Collection</p>
           <h3>Iced Vanilla Latte</h3>
@@ -451,7 +476,7 @@
         </div>
       </article>
       <article class="product bestseller">
-        <div class="product__image"><img src="ILUMAE10.jpeg" alt="Favorita #3"><span class="product__tag">#3</span></div>
+        <div class="product__image"><img src="ILUMAE10.png" alt="Favorita #3"><span class="product__tag">#3</span></div>
         <div class="product__body">
           <p class="product__line">Línea Corporativa</p>
           <h3>Regalo VIP de lanzamiento</h3>
@@ -768,7 +793,7 @@
     if(!aroma){alert('Por favor elige un aroma.');return;}
     const msg=document.getElementById('bev-msg').value.trim();
     const detail=`${drinkName} · ${sabor} · Aroma: ${aroma}${msg?' · '+msg:''}`;
-    addToCart('Beverage Collection',275,'ILUMAE7.jpeg',detail);
+    addToCart('Beverage Collection',275,'ILUMAE7.png',detail);
   }
 
   // ── CONSULTA ──
@@ -823,6 +848,39 @@
   const sections=document.querySelectorAll('section[id]');
   const navLinks=document.querySelectorAll('nav a');
   window.addEventListener('scroll',()=>{let cur='';sections.forEach(s=>{if(scrollY>=s.offsetTop-100)cur=s.id;});navLinks.forEach(a=>{a.classList.remove('active');if(a.getAttribute('href')==='#'+cur)a.classList.add('active');});});
+
+
+  // ── MINI CAROUSELES DE PRODUCTOS ──
+  function initProductCarousels() {
+    document.querySelectorAll('[data-pc]').forEach(pc => {
+      const track = pc.querySelector('.product-carousel__track');
+      const slides = Array.from(track.children);
+      const dotsContainer = pc.querySelector('.product-carousel__dots');
+      let idx = 0;
+
+      slides.forEach((_, i) => {
+        const dot = document.createElement('button');
+        dot.className = 'product-carousel__dot' + (i === 0 ? ' active' : '');
+        dot.onclick = () => { idx = i; update(); };
+        dotsContainer.appendChild(dot);
+      });
+
+      const dots = Array.from(dotsContainer.children);
+
+      function update() {
+        track.style.transform = `translateX(-${idx * 100}%)`;
+        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+      }
+
+      // Auto avance cada 3 segundos con offset para que no cambien todas al mismo tiempo
+      const offset = Array.from(document.querySelectorAll('[data-pc]')).indexOf(pc) * 1000;
+      setTimeout(() => {
+        setInterval(() => { idx = (idx + 1) % slides.length; update(); }, 3000);
+      }, offset);
+    });
+  }
+
+  initProductCarousels();
 
   loadCart();
   if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js').catch(()=>{}));
