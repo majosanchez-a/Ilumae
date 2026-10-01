@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ILUMAE — Formulario de Validación B2B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --carbon: #363D3D; --rosa: #ECB7A6; --lavanda: #EFE6E6;
+    --crema: #F1EEE8; --blanco: #FFF9F3; --carbon60: rgba(54,61,61,.6);
+    --display: 'Cormorant Garamond', serif; --sans: 'DM Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--crema); color: var(--carbon); font: 300 16px/1.7 var(--sans); min-height: 100vh; }
+
+  .header { background: var(--carbon); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .header-logo { font-family: var(--display); font-size: 22px; color: var(--rosa); letter-spacing: 2px; }
+  .header-sub { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.5); }
+
+  .hero { background: var(--rosa); padding: 32px 24px; text-align: center; }
+  .hero h1 { font: 300 32px/1.2 var(--display); color: var(--carbon); margin-bottom: 8px; }
+  .hero p { font-size: 14px; color: var(--carbon); opacity: .7; max-width: 400px; margin: 0 auto; line-height: 1.6; }
+
+  .progress-bar { background: var(--lavanda); height: 4px; }
+  .progress-fill { background: var(--carbon); height: 4px; width: 0%; transition: width .4s ease; }
+
+  .container { max-width: 600px; margin: 0 auto; padding: 24px 20px 80px; }
+
+  .step { display: none; animation: fadeIn .4s ease; }
+  .step.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+  .step-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--rosa); margin-bottom: 4px; }
+  .step-title { font: 400 26px var(--display); color: var(--carbon); margin-bottom: 6px; }
+  .step-desc { font-size: 14px; color: var(--carbon60); margin-bottom: 24px; line-height: 1.6; }
+
+  .field { margin-bottom: 18px; }
+  .field label { display: block; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--carbon60); margin-bottom: 6px; font-weight: 500; }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 12px 14px; border-radius: 10px;
+    border: 1.5px solid var(--lavanda); background: var(--blanco);
+    font: 300 15px var(--sans); color: var(--carbon); transition: border-color .25s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--rosa); }
+  .field textarea { resize: vertical; min-height: 80px; }
+  .field select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23363D3D'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .chip { padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--lavanda); background: var(--blanco); font-size: 13px; cursor: pointer; transition: all .2s; font-family: var(--sans); color: var(--carbon); }
+  .chip:hover { border-color: var(--rosa); }
+  .chip.selected { background: var(--carbon); color: var(--blanco); border-color: var(--carbon); }
+
+  .scale { display: flex; gap: 8px; margin-top: 6px; }
+  .scale-btn { flex: 1; padding: 10px 4px; border-radius: 8px; border: 1.5px solid var(--lavanda); background: var(--blanco); font-size: 13px; cursor: pointer; text-align: center; transition: all .2s; font-family: var(--sans); color: var(--carbon); }
+  .scale-btn:hover { border-color: var(--rosa); }
+  .scale-btn.selected { background: var(--carbon); color: var(--blanco); border-color: var(--carbon); }
+  .scale-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--carbon60); margin-top: 4px; }
+
+  .nav { display: flex; gap: 12px; margin-top: 28px; }
+  .btn-next { flex: 1; background: var(--carbon); color: var(--blanco); padding: 14px; border: none; border-radius: 999px; font: 500 14px var(--sans); cursor: pointer; transition: all .3s; }
+  .btn-next:hover { background: var(--rosa); color: var(--carbon); }
+  .btn-back { padding: 14px 20px; background: transparent; border: 1.5px solid var(--lavanda); border-radius: 999px; font: 500 14px var(--sans); cursor: pointer; color: var(--carbon60); transition: all .3s; }
+  .btn-back:hover { border-color: var(--carbon); color: var(--carbon); }
+
+  .success { text-align: center; padding: 48px 20px; display: none; }
+  .success .icon { font-size: 56px; margin-bottom: 16px; }
+  .success h2 { font: 300 28px var(--display); margin-bottom: 10px; }
+  .success p { color: var(--carbon60); font-size: 14px; line-height: 1.7; max-width: 340px; margin: 0 auto; }
+
+  .interview-note { background: var(--blanco); border-left: 3px solid var(--rosa); padding: 10px 14px; border-radius: 0 8px 8px 0; margin-bottom: 20px; font-size: 13px; color: var(--carbon60); line-height: 1.6; }
+
+  .step-counter { font-size: 12px; color: var(--carbon60); text-align: right; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-logo">ILUMAE</div>
+    <div class="header-sub">Candles & Soaps · Validación B2B</div>
+  </div>
+  <div style="font-size:11px;color:rgba(255,255,255,.4);text-align:right;">@ilumae_ags</div>
+</div>
+
+<div class="hero">
+  <h1>Encuesta para empresas</h1>
+  <p>Hola, somos ILUMAE — una marca de velas artesanales personalizadas en Aguascalientes. Estamos desarrollando una línea corporativa y nos gustaría conocer tu opinión sobre regalos empresariales. Son solo 5 minutos y tus respuestas nos ayudan a crear algo que realmente funcione para empresas como la tuya. 🕯✨</p>
+</div>
+
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+<div class="container">
+
+  <!-- STEP 1 — PERFIL -->
+  <div class="step active" id="step-1">
+    <div class="step-counter" id="counter-1"></div>
+    <div class="step-label">Bloque 1 de 4</div>
+    <div class="step-title">Cuéntanos sobre tu empresa</div>
+    <div class="step-desc">Sin presiones — esta información es solo para entender mejor tu contexto.</div>
+
+    <div class="field">
+      <label>Nombre (opcional)</label>
+      <input type="text" id="nombre" placeholder="Tu nombre">
+    </div>
+    <div class="field">
+      <label>Giro o tipo de empresa</label>
+      <input type="text" id="giro" placeholder="Ej. Restaurante, boutique, despacho...">
+    </div>
+    <div class="field">
+      <label>Tu puesto o rol</label>
+      <div class="chips">
+        <button type="button" class="chip" onclick="selectChip(this,'puesto')">Dueño/a</button>
+        <button type="button" class="chip" onclick="selectChip(this,'puesto')">Gerente de marketing</button>
+        <button type="button" class="chip" onclick="selectChip(this,'puesto')">Gerente de RH</button>
+        <button type="button" class="chip" onclick="selectChip(this,'puesto')">Organizador/a de eventos</button>
+        <button type="button" class="chip" onclick="selectChip(this,'puesto')">Otro</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Número aproximado de empleados</label>
+      <div class="chips">
+        <button type="button" class="chip" onclick="selectChip(this,'empleados')">1–5</button>
+        <button type="button" class="chip" onclick="selectChip(this,'empleados')">6–20</button>
+        <button type="button" class="chip" onclick="selectChip(this,'empleados')">21–50</button>
+        <button type="button" class="chip" onclick="selectChip(this,'empleados')">Más de 50</button>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="btn-next" onclick="nextStep()">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 — HÁBITOS DE COMPRA -->
+  <div class="step" id="step-2">
+    <div class="step-counter" id="counter-2"></div>
+    <div class="step-label">Bloque 2 de 4</div>
+    <div class="step-title">Regalos corporativos hoy</div>
+    <div class="step-desc">Queremos entender cómo manejan los regalos actualmente, sin importar si es poco o mucho.</div>
+
+
+    <div class="field">
+      <label>¿Con qué frecuencia compran regalos para clientes o eventos?</label>
+      <div class="chips">
+        <button type="button" class="chip" onclick="selectChip(this,'frecuencia')">Casi nunca</button>
+        <button type="button" class="chip" onclick="selectChip(this,'frecuencia')">1–2 veces al año</button>
+        <button type="button" class="chip" onclick="selectChip(this,'frecuencia')">3–5 veces al año</button>
+        <button type="button" class="chip" onclick="selectChip(this,'frecuencia')">Más de 5 veces</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>¿Dónde compran actualmente?</label>
+      <div class="chips">
+        <button type="button" class="chip" onclick="selectChipMulti(this,'donde')">Tiendas departamentales</button>
+        <button type="button" class="chip" onclick="selectChipMulti(this,'donde')">Amazon / Mercado Libre</button>
+        <button type="button" class="chip" onclick="selectChipMulti(this,'donde')">Marcas artesanales</button>
+        <button type="button" class="chip" onclick="selectChipMulti(this,'donde')">Catálogos corporativos</button>
+        <button type="button" class="chip" onclick="selectChipMulti(this,'donde')">Instagram / redes</button>
+        <button type="button" class="chip" onclick="selectChipMulti(this,'donde')">Otro</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>¿Qué tan satisfechos quedan con los regalos que encuentran?</label>
+      <div class="scale">
+        <button type="button" class="scale-btn" onclick="selectScale(this,'satisfaccion')">1</button>
+        <button type="button" class="scale-btn" onclick="selectScale(this,'satisfaccion')">2</button>
+        <button type="button" class="scale-btn" onclick="selectScale(this,'satisfaccion')">3</button>
+        <button type="button" class="scale-btn" onclick="selectScale(this,'satisfaccion')">4</button>
+        <button type="button" class="scale-btn" onclick="selectScale(this,'satisfaccion')">5</button>
+      </div>
+      <div class="scale-labels"><span>Muy insatisfechos</span><span>Muy satisfechos</span></div>
+    </div>
+    <div class="field">
+      <label>¿Cuánto invierten aproximadamente en regalos corporativos al año?</label>
+      <div class="chips">
+        <button type="button" class="chip" onclick="selectChip(this,'presupuesto')">Menos de $2,000 MXN</button>
+        <button type="button" class="chip" onclick="selectChip(this,'presupuesto')">$2,000–$5,000 MXN</button>
+        <button type="button" class="chip" onclick="selectChip(this,'presupuesto')">$5,000–$15,000 MXN</button>
+        <button type="button" class="chip" onclick="selectChip(this,'presupuesto')">Más de $15,000 MXN</button>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="btn-back" onclick="prevStep()">← Atrás</button>
+      <button class="btn-next" onclick="nextStep()">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 — PROBLEMA Y APERTURA -->
+  <div class="step" id="step-3">
+    <div class="step-counter" id="counter-3"></div>
+    <div class="step-label">Bloque 3 de 4</div>
+    <div class="step-title">Personalización e identidad</div>
+    <div class="step-desc">Queremos entender qué tan importante es que los regalos reflejen su marca.</div>
+
+
+    <div class="field">
+      <label>¿Han buscado alguna vez regalos con el logo o identidad de su empresa?</label>
+      <div class="chips">
+        <button type="button" class="chip" onclick="selectChip(this,'busco-logo')">Sí, y lo encontramos</button>
+        <button type="button" class="chip" onclick="selectChip(this,'busco-logo')">Sí, pero fue difícil</button>
+        <button type="button" class="chip" onclick="selectChip(this,'busco-logo')">No lo hemos buscado</button>
+        <button type="button" class="chip" onclick="selectChip(this,'busco-logo')">No nos interesa</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>¿Cuál ha sido el mayor obstáculo al buscar regalos personalizados?</label>
+      <div class="chips">
+        <button type="button" class="chip" onclick="selectChipMulti(this,'obstaculos')">El precio es muy alto</button>
+        <button type="button" class="chip" onclick="selectChipMulti(this,'obstaculos')">El tiempo de entrega</button>
+        <button type="button" class="chip" onclick="selectChipMulti(this,'obstaculos')">No encontramos opciones</button>
+        <button type="button" class="chip" onclick="selectChipMulti(this,'obstaculos')">No confiamos en marcas nuevas</button>
+        <button type="button" class="chip" onclick="selectChipMulti(this,'obstaculos')">El mínimo de piezas</button>
+        <button type="button" class="chip" onclick="selectChipMulti(this,'obstaculos')">No ha sido obstáculo</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>¿Considerarían una marca artesanal local para sus regalos corporativos?</label>
+      <div class="chips">
+        <button type="button" class="chip" onclick="selectChip(this,'considera')">Sí, sin duda</button>
+        <button type="button" class="chip" onclick="selectChip(this,'considera')">Sí, si cumple con calidad</button>
+        <button type="button" class="chip" onclick="selectChip(this,'considera')">Depende del precio</button>
+        <button type="button" class="chip" onclick="selectChip(this,'considera')">Probablemente no</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Si vieran una muestra física del producto con el logo de su empresa, ¿eso sería suficiente para hacer un pedido?</label>
+      <div class="chips">
+        <button type="button" class="chip" onclick="selectChip(this,'muestra')">Sí, con la muestra es suficiente</button>
+        <button type="button" class="chip" onclick="selectChip(this,'muestra')">Necesitaría ver más referencias</button>
+        <button type="button" class="chip" onclick="selectChip(this,'muestra')">Necesitaría cotización formal</button>
+        <button type="button" class="chip" onclick="selectChip(this,'muestra')">Necesitaría aprobación de otra persona</button>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="btn-back" onclick="prevStep()">← Atrás</button>
+      <button class="btn-next" onclick="nextStep()">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4 — PRECIO Y CIERRE -->
+  <div class="step" id="step-4">
+    <div class="step-counter" id="counter-4"></div>
+    <div class="step-label">Bloque 4 de 4</div>
+    <div class="step-title">Precio y regalo ideal</div>
+    <div class="step-desc">Últimas preguntas — nos ayudan a saber si nuestra propuesta tiene sentido para tu empresa.</div>
+
+
+    <div class="field">
+      <label>¿Cuánto pagaría por una vela artesanal personalizada con el logo de su empresa? (por pieza, pedido mínimo 20 piezas)</label>
+      <div class="chips">
+        <button type="button" class="chip" onclick="selectChip(this,'precio')">Menos de $100 MXN</button>
+        <button type="button" class="chip" onclick="selectChip(this,'precio')">$100–$150 MXN</button>
+        <button type="button" class="chip" onclick="selectChip(this,'precio')">$150–$200 MXN</button>
+        <button type="button" class="chip" onclick="selectChip(this,'precio')">Más de $200 MXN</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>¿El mínimo de 20 piezas sería viable para su empresa?</label>
+      <div class="chips">
+        <button type="button" class="chip" onclick="selectChip(this,'minimo')">Sí, sin problema</button>
+        <button type="button" class="chip" onclick="selectChip(this,'minimo')">Depende del evento</button>
+        <button type="button" class="chip" onclick="selectChip(this,'minimo')">Necesitaría menos piezas</button>
+        <button type="button" class="chip" onclick="selectChip(this,'minimo')">Necesitaría más piezas</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>¿Para qué ocasión usaría estos regalos? (elige todos los que apliquen)</label>
+      <div class="chips">
+        <button type="button" class="chip" onclick="selectChipMulti(this,'ocasion')">Regalos a clientes VIP</button>
+        <button type="button" class="chip" onclick="selectChipMulti(this,'ocasion')">Lanzamiento de marca</button>
+        <button type="button" class="chip" onclick="selectChipMulti(this,'ocasion')">Eventos corporativos</button>
+        <button type="button" class="chip" onclick="selectChipMulti(this,'ocasion')">Bodas o XV años</button>
+        <button type="button" class="chip" onclick="selectChipMulti(this,'ocasion')">Navidad o fin de año</button>
+        <button type="button" class="chip" onclick="selectChipMulti(this,'ocasion')">Otro</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>¿Algo más que quiera contarnos? (comentarios libres)</label>
+      <textarea id="comentarios" placeholder="Cualquier idea, duda o sugerencia es bienvenida..."></textarea>
+    </div>
+
+    <div class="nav">
+      <button class="btn-back" onclick="prevStep()">← Atrás</button>
+      <button class="btn-next" onclick="submitForm()">Enviar respuestas ✨</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success" id="success">
+    <div class="icon">🕯✨</div>
+    <h2>¡Muchas gracias!</h2>
+    <p>Tus respuestas nos ayudan a construir algo mejor. Nos pondremos en contacto pronto si hay interés en conocer más sobre ILUMAE.</p>
+    <div style="margin-top:24px;padding:16px;background:var(--blanco);border-radius:12px;">
+      <p style="font-size:13px;color:var(--carbon60);">¿Quieres saber más?</p>
+      <p style="font-size:14px;font-weight:500;color:var(--carbon);margin-top:4px;">📱 @ilumae_ags<br>📧 ilumaeags@gmail.com</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const TOTAL_STEPS = 4;
+  let currentStep = 1;
+  const data = {};
+
+  function updateProgress() {
+    const pct = ((currentStep - 1) / TOTAL_STEPS) * 100;
+    document.getElementById('progress').style.width = pct + '%';
+    for (let i = 1; i <= TOTAL_STEPS; i++) {
+      const el = document.getElementById('counter-' + i);
+      if (el) el.textContent = `Paso ${i} de ${TOTAL_STEPS}`;
+    }
+  }
+
+  function nextStep() {
+    if (currentStep < TOTAL_STEPS) {
+      document.getElementById('step-' + currentStep).classList.remove('active');
+      currentStep++;
+      document.getElementById('step-' + currentStep).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      updateProgress();
+    }
+  }
+
+  function prevStep() {
+    if (currentStep > 1) {
+      document.getElementById('step-' + currentStep).classList.remove('active');
+      currentStep--;
+      document.getElementById('step-' + currentStep).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      updateProgress();
+    }
+  }
+
+  function selectChip(el, group) {
+    document.querySelectorAll(`.chip[onclick*="'${group}'"]`).forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    data[group] = el.textContent.trim();
+  }
+
+  function selectChipMulti(el, group) {
+    el.classList.toggle('selected');
+    data[group] = Array.from(document.querySelectorAll(`.chip[onclick*="'${group}'"].selected`)).map(c => c.textContent.trim());
+  }
+
+  function selectScale(el, group) {
+    el.closest('.scale').querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    data[group] = el.textContent.trim();
+  }
+
+  async function submitForm() {
+    data.nombre = document.getElementById('nombre').value.trim() || 'Anónimo';
+    data.giro = document.getElementById('giro').value.trim();
+    data.comentarios = document.getElementById('comentarios').value.trim();
+    data.fecha = new Date().toLocaleString('es-MX');
+    data.tipo = 'validacion-b2b';
+
+    // Guardar en Firebase
+    try {
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js");
+      const { getFirestore, addDoc, collection, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js");
+      const app = initializeApp({
+        apiKey: "AIzaSyBVeMNcoN8TAq7m9VgvD8ng-YUNuQwmJVQ",
+        authDomain: "ilumae-82b55.firebaseapp.com",
+        projectId: "ilumae-82b55",
+        storageBucket: "ilumae-82b55.firebasestorage.app",
+        messagingSenderId: "720491821338",
+        appId: "1:720491821338:web:330ad22e4088d3da06d4a3"
+      });
+      const db = getFirestore(app);
+      await addDoc(collection(db, 'validacion-b2b'), { ...data, createdAt: serverTimestamp() });
+    } catch(e) {
+      console.log('Firebase error:', e);
+    }
+
+    // Mostrar éxito
+    document.getElementById('step-' + currentStep).classList.remove('active');
+    document.getElementById('success').style.display = 'block';
+    document.getElementById('progress').style.width = '100%';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  updateProgress();
+</script>
+</body>
+</html>
