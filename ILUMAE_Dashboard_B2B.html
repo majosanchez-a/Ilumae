@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ILUMAE — Dashboard Validación B2B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --carbon:#363D3D; --rosa:#ECB7A6; --lavanda:#EFE6E6;
+    --crema:#F1EEE8; --blanco:#FFF9F3; --carbon60:rgba(54,61,61,.6);
+    --display:'Cormorant Garamond',serif; --sans:'DM Sans',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--crema);color:var(--carbon);font:300 15px/1.6 var(--sans);min-height:100vh}
+
+  .header{background:var(--carbon);padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
+  .header-logo{font-family:var(--display);font-size:20px;color:var(--rosa);letter-spacing:2px}
+  .header-sub{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4)}
+
+  .container{max-width:1100px;margin:0 auto;padding:24px 20px}
+
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px}
+  .stat{background:var(--blanco);border-radius:12px;padding:18px;text-align:center;box-shadow:0 2px 8px rgba(54,61,61,.06)}
+  .stat .num{font:300 36px var(--display);color:var(--carbon);margin-bottom:4px}
+  .stat .label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--carbon60)}
+  .stat.highlight{background:var(--carbon)}
+  .stat.highlight .num{color:var(--rosa)}
+  .stat.highlight .label{color:rgba(255,255,255,.5)}
+
+  .toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+  .toolbar input{flex:1;min-width:180px;padding:9px 14px;border-radius:999px;border:1.5px solid var(--lavanda);background:var(--blanco);font:300 14px var(--sans);color:var(--carbon)}
+  .toolbar input:focus{outline:none;border-color:var(--rosa)}
+  .btn{padding:9px 18px;border-radius:999px;border:none;cursor:pointer;font:500 13px var(--sans);transition:all .25s}
+  .btn-primary{background:var(--carbon);color:var(--blanco)}
+  .btn-primary:hover{background:var(--rosa);color:var(--carbon)}
+  .btn-outline{background:transparent;border:1.5px solid var(--lavanda);color:var(--carbon60)}
+  .btn-outline:hover{border-color:var(--carbon);color:var(--carbon)}
+
+  .table-wrap{background:var(--blanco);border-radius:12px;overflow:auto;box-shadow:0 2px 8px rgba(54,61,61,.06)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{background:var(--carbon);color:var(--blanco);padding:12px 14px;text-align:left;font-weight:500;font-size:11px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
+  td{padding:11px 14px;border-bottom:1px solid var(--lavanda);vertical-align:top;max-width:200px}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:var(--crema)}
+  .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:500}
+  .badge-si{background:#D9EAD3;color:#1A5C2E}
+  .badge-tal{background:#FFF3CD;color:#7A5C00}
+  .badge-no{background:#FDE8D8;color:#A61B1B}
+
+  .empty{text-align:center;padding:60px 20px;color:var(--carbon60)}
+  .empty .icon{font-size:40px;margin-bottom:12px}
+
+  .loading{text-align:center;padding:40px;color:var(--carbon60)}
+
+  .detail-modal{position:fixed;inset:0;background:rgba(54,61,61,.5);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .detail-modal.open{display:flex}
+  .detail-card{background:var(--blanco);border-radius:16px;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;padding:28px}
+  .detail-card h3{font:300 24px var(--display);margin-bottom:16px;color:var(--carbon)}
+  .detail-row{display:flex;gap:10px;margin-bottom:10px;font-size:14px}
+  .detail-label{font-weight:500;min-width:140px;color:var(--carbon60);flex-shrink:0}
+  .detail-val{color:var(--carbon)}
+  .close-btn{float:right;background:none;border:none;font-size:20px;cursor:pointer;color:var(--carbon60);margin-top:-4px}
+
+  @media(max-width:600px){
+    th:nth-child(n+5),td:nth-child(n+5){display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-logo">ILUMAE</div>
+    <div class="header-sub">Dashboard · Validación B2B</div>
+  </div>
+  <div style="font-size:11px;color:rgba(255,255,255,.3)">Solo visible para el equipo</div>
+</div>
+
+<div class="container">
+
+  <div class="stats" id="stats">
+    <div class="stat highlight"><div class="num" id="s-total">—</div><div class="label">Respuestas</div></div>
+    <div class="stat"><div class="num" id="s-interes">—</div><div class="label">Con interés en ILUMAE</div></div>
+    <div class="stat"><div class="num" id="s-precio">—</div><div class="label">Precio más común</div></div>
+    <div class="stat"><div class="num" id="s-minimo">—</div><div class="label">Mínimo viable</div></div>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" id="search" placeholder="Buscar por empresa, puesto..." oninput="filterTable()">
+    <button class="btn btn-outline" onclick="loadData()">↻ Actualizar</button>
+    <button class="btn btn-primary" onclick="exportCSV()">⬇ Descargar Excel</button>
+  </div>
+
+  <div class="table-wrap">
+    <div class="loading" id="loading">🕯 Cargando respuestas...</div>
+    <table id="table" style="display:none">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Fecha</th>
+          <th>Nombre</th>
+          <th>Empresa / Giro</th>
+          <th>Puesto</th>
+          <th>Empleados</th>
+          <th>Frecuencia</th>
+          <th>Satisfacción</th>
+          <th>¿Buscó logo?</th>
+          <th>Precio sugerido</th>
+          <th>Mínimo viable</th>
+          <th>¿Considera ILUMAE?</th>
+          <th>Ver más</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="empty" id="empty" style="display:none">
+      <div class="icon">📭</div>
+      <p>Aún no hay respuestas.<br>Comparte el formulario con las empresas.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="detail-modal" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="detail-card">
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <h3 id="modal-title">Detalle</h3>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getFirestore, collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyBVeMNcoN8TAq7m9VgvD8ng-YUNuQwmJVQ",
+  authDomain:"ilumae-82b55.firebaseapp.com",
+  projectId:"ilumae-82b55",
+  storageBucket:"ilumae-82b55.firebasestorage.app",
+  messagingSenderId:"720491821338",
+  appId:"1:720491821338:web:330ad22e4088d3da06d4a3"
+});
+const db = getFirestore(app);
+let allData = [];
+
+function badge(text) {
+  if (!text) return '—';
+  const t = text.toLowerCase();
+  if (t.includes('sí') || t.includes('si') || t.includes('sin duda') || t.includes('viable')) return `<span class="badge badge-si">${text}</span>`;
+  if (t.includes('tal vez') || t.includes('depende') || t.includes('quizá')) return `<span class="badge badge-tal">${text}</span>`;
+  if (t.includes('no') || t.includes('poco') || t.includes('nunca')) return `<span class="badge badge-no">${text}</span>`;
+  return text;
+}
+
+function fmt(val) {
+  if (!val) return '—';
+  if (Array.isArray(val)) return val.join(', ') || '—';
+  return val;
+}
+
+window.loadData = async function() {
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('table').style.display = 'none';
+  document.getElementById('empty').style.display = 'none';
+  try {
+    const q = query(collection(db, 'validacion-b2b'), orderBy('createdAt', 'desc'));
+    const snap = await getDocs(q);
+    allData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderTable(allData);
+    renderStats(allData);
+  } catch(e) {
+    // Si no hay datos aún o falla el order
+    try {
+      const snap = await getDocs(collection(db, 'validacion-b2b'));
+      allData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderTable(allData);
+      renderStats(allData);
+    } catch(e2) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('empty').style.display = 'block';
+    }
+  }
+};
+
+function renderStats(data) {
+  document.getElementById('s-total').textContent = data.length;
+  const conInteres = data.filter(d => {
+    const c = (d.considera || '').toLowerCase();
+    return c.includes('sí') || c.includes('sin duda') || c.includes('calidad');
+  }).length;
+  document.getElementById('s-interes').textContent = conInteres;
+
+  // Precio más común
+  const precios = data.map(d => d.precio).filter(Boolean);
+  const precioCount = {};
+  precios.forEach(p => precioCount[p] = (precioCount[p] || 0) + 1);
+  const topPrecio = Object.entries(precioCount).sort((a,b) => b[1]-a[1])[0];
+  document.getElementById('s-precio').textContent = topPrecio ? topPrecio[0] : '—';
+
+  // Mínimo viable
+  const minimos = data.map(d => d.minimo).filter(Boolean);
+  const minimoCount = {};
+  minimos.forEach(m => minimoCount[m] = (minimoCount[m] || 0) + 1);
+  const topMinimo = Object.entries(minimoCount).sort((a,b) => b[1]-a[1])[0];
+  document.getElementById('s-minimo').textContent = topMinimo ? topMinimo[0].split(' ')[0] : '—';
+}
+
+function renderTable(data) {
+  document.getElementById('loading').style.display = 'none';
+  if (!data.length) { document.getElementById('empty').style.display = 'block'; return; }
+  document.getElementById('table').style.display = 'table';
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = data.map((d, i) => {
+    const fecha = d.createdAt?.toDate ? d.createdAt.toDate().toLocaleDateString('es-MX') : (d.fecha || '—');
+    return `<tr>
+      <td style="color:var(--carbon60);font-size:12px">${i+1}</td>
+      <td style="white-space:nowrap;font-size:12px;color:var(--carbon60)">${fecha}</td>
+      <td><strong>${d.nombre || 'Anónimo'}</strong></td>
+      <td>${d.giro || '—'}</td>
+      <td style="font-size:12px">${fmt(d.puesto)}</td>
+      <td style="font-size:12px">${fmt(d.empleados)}</td>
+      <td style="font-size:12px">${fmt(d.frecuencia)}</td>
+      <td style="text-align:center"><strong>${d.satisfaccion || '—'}</strong>/5</td>
+      <td style="font-size:12px">${d['busco-logo'] || '—'}</td>
+      <td style="font-size:12px">${d.precio || '—'}</td>
+      <td style="font-size:12px">${d.minimo || '—'}</td>
+      <td>${badge(d.considera)}</td>
+      <td><button class="btn btn-outline" style="padding:5px 12px;font-size:12px;" onclick="showDetail(${i})">Ver</button></td>
+    </tr>`;
+  }).join('');
+}
+
+window.showDetail = function(i) {
+  const d = allData[i];
+  const fecha = d.createdAt?.toDate ? d.createdAt.toDate().toLocaleString('es-MX') : (d.fecha || '—');
+  document.getElementById('modal-title').textContent = d.nombre || 'Respuesta';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="detail-row"><span class="detail-label">Fecha</span><span class="detail-val">${fecha}</span></div>
+    <div class="detail-row"><span class="detail-label">Giro / Empresa</span><span class="detail-val">${d.giro || '—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Puesto</span><span class="detail-val">${fmt(d.puesto)}</span></div>
+    <div class="detail-row"><span class="detail-label">Empleados</span><span class="detail-val">${fmt(d.empleados)}</span></div>
+    <div class="detail-row"><span class="detail-label">Frecuencia compra</span><span class="detail-val">${fmt(d.frecuencia)}</span></div>
+    <div class="detail-row"><span class="detail-label">¿Dónde compran?</span><span class="detail-val">${fmt(d.donde)}</span></div>
+    <div class="detail-row"><span class="detail-label">Satisfacción actual</span><span class="detail-val">${d.satisfaccion || '—'}/5</span></div>
+    <div class="detail-row"><span class="detail-label">Presupuesto anual</span><span class="detail-val">${fmt(d.presupuesto)}</span></div>
+    <div class="detail-row"><span class="detail-label">¿Buscó logo?</span><span class="detail-val">${d['busco-logo'] || '—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Obstáculos</span><span class="detail-val">${fmt(d.obstaculos)}</span></div>
+    <div class="detail-row"><span class="detail-label">¿Considera ILUMAE?</span><span class="detail-val">${d.considera || '—'}</span></div>
+    <div class="detail-row"><span class="detail-label">¿Muestra suficiente?</span><span class="detail-val">${d.muestra || '—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Precio sugerido</span><span class="detail-val">${d.precio || '—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Mínimo viable</span><span class="detail-val">${d.minimo || '—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Ocasiones de uso</span><span class="detail-val">${fmt(d.ocasion)}</span></div>
+    <div class="detail-row"><span class="detail-label">Comentarios</span><span class="detail-val">${d.comentarios || '—'}</span></div>
+  `;
+  document.getElementById('modal').classList.add('open');
+};
+
+window.closeModal = function() {
+  document.getElementById('modal').classList.remove('open');
+};
+
+window.filterTable = function() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const filtered = allData.filter(d =>
+    (d.nombre||'').toLowerCase().includes(q) ||
+    (d.giro||'').toLowerCase().includes(q) ||
+    (fmt(d.puesto)).toLowerCase().includes(q) ||
+    (d.comentarios||'').toLowerCase().includes(q)
+  );
+  renderTable(filtered);
+};
+
+window.exportCSV = function() {
+  if (!allData.length) { alert('No hay datos para exportar.'); return; }
+  const headers = ['Fecha','Nombre','Giro','Puesto','Empleados','Frecuencia','Donde compran','Satisfaccion','Presupuesto','Busco logo','Obstaculos','Considera ILUMAE','Muestra suficiente','Precio sugerido','Minimo viable','Ocasiones','Comentarios'];
+  const rows = allData.map(d => [
+    d.fecha || (d.createdAt?.toDate ? d.createdAt.toDate().toLocaleDateString('es-MX') : ''),
+    d.nombre || 'Anonimo',
+    d.giro || '',
+    fmt(d.puesto),
+    fmt(d.empleados),
+    fmt(d.frecuencia),
+    fmt(d.donde),
+    d.satisfaccion || '',
+    fmt(d.presupuesto),
+    d['busco-logo'] || '',
+    fmt(d.obstaculos),
+    d.considera || '',
+    d.muestra || '',
+    d.precio || '',
+    d.minimo || '',
+    fmt(d.ocasion),
+    d.comentarios || ''
+  ].map(v => `"${String(v).replace(/"/g,'""')}"`));
+
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ILUMAE_Validacion_B2B.csv';
+  a.click();
+};
+
+loadData();
+</script>
+</body>
+</html>
